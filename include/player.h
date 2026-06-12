@@ -1,6 +1,9 @@
 #pragma once
 
 #include <SDL3/SDL_render.h>
+#include <vector>
+
+#include "block.h"
 
 #include "lmath.h"
 
@@ -13,5 +16,4 @@ typedef struct {
 } player_t;
 
 void DrawPlayer(SDL_Renderer *renderer, player_t *p);
-
-void MovePlayer(player_t *p, float delta);
+void MovePlayer(player_t *p, float delta, std::vector<Block> b);

@@ -1,23 +1,27 @@
-#include <SDL3/SDL_stdinc.h>
+#include "include/lmath.h"
 #define SDL_MAIN_USE_CALLBACKS 1  /* use the callbacks instead of main() */
 
+#include <SDL3/SDL_stdinc.h>
 #include <SDL3/SDL_timer.h>
-#include <cmath>
-#include <cstdlib>
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_keycode.h>
 #include <SDL3/SDL_oldnames.h>
-#include <cstdio>
-
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
+#include <cstdlib>
+#include <cstdio>
+#include <vector>
+
 #include "include/player.h"
+#include "include/block.h"
 
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
+
+std::vector<Block> blocks;
 
 static player_t player;
 
@@ -44,10 +48,18 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     player = {
         .max_speed = 100.0,
         .body = {32.0, 32.0},
-        .position = {100.0, 100.0},
+        .position = {100.0f, 100.0f},
         .velocity = {0.0, 0.0},
         .direction = {0, 0},
     };
+
+    blocks.push_back(Block ({275.0f, 100.0f}, {32.0f, 32.0f}, "grass", true));
+    blocks.push_back(Block ({50.0f, 100.0f}, {32.0f, 32.0f}, "grass", true));
+
+    for (int i = 0; i < 9; i++)
+    {
+        blocks.push_back(Block ({50.0f + 32.0f * i, 164.0f}, {32.0f, 32.0f}, "grass", true));
+    }
 
     last_tick = SDL_GetTicks();
 
@@ -92,15 +104,30 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     float delta_time = (current_tick - last_tick) / 1000.0f;
     last_tick = current_tick;
 
-    MovePlayer(&player, delta_time);
+    MovePlayer(&player, delta_time, blocks);
     
-    printf("Velocity = %fx\n", player.velocity.x);
+    printf("Velocity = %f, %f\n", player.velocity.x, player.velocity.y);
 
     // Clear screen
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderClear(renderer);
 
     // Draw here
+
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 0);
+    
+    for (Block b : blocks)
+    {
+        SDL_FRect rect = {
+            .x = b.m_position.x,
+            .y = b.m_position.y,
+            .w = b.m_size.x,
+            .h = b.m_size.y,
+        };
+
+        SDL_RenderFillRect(renderer, &rect);
+    }
+
     DrawPlayer(renderer, &player);
 
     /* put the newly-cleared rendering on the screen. */
