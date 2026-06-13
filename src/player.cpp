@@ -4,6 +4,8 @@
 #include "../include/player.h"
 #include "../include/block.h"
 
+#include <iostream>
+
 #include <vector>
 #include <cmath>
 
@@ -27,15 +29,13 @@ void DrawPlayer(SDL_Renderer *renderer, player_t *p)
 
 void MovePlayer(player_t *p, float delta, std::vector<Block> b)
 {
-    const float acceleration = 175.0f;
-    const float friction     = 25.0f;
-    const float mass         = 50.0f;
-
-    p->velocity.y += 9.81f * mass * delta;  // gravity
+    const float acceleration = 5000.0f;
+    const float friction     = 500.0f;
+    const float mass         = 100.0f;
 
     if (p->direction.x != 0)
     {
-        p->velocity.x = p->direction.x * acceleration * delta;
+        p->velocity.x += p->direction.x * acceleration * delta;
     }
     else 
     {
@@ -51,9 +51,16 @@ void MovePlayer(player_t *p, float delta, std::vector<Block> b)
         }
     }
 
+    p->velocity.x = std::fmax(std::fmin(p->velocity.x, p->max_speed), -p->max_speed);
+
+    p->velocity.y += 9.81f * p->direction.y * mass * delta;  // gravity
+    
+    if (!p->is_grounded) p->direction.y = 1;
+
+    p->is_grounded = false; // resetuj co klatkę
     for (Block block : b)
     {
-        if (CheckCollisionX(p, &block)) 
+        if (CheckCollisionX(p, &block))
         {
             p->velocity.x = 0;
         }
@@ -61,12 +68,11 @@ void MovePlayer(player_t *p, float delta, std::vector<Block> b)
         if (CheckCollisionY(p, &block))
         {
             p->velocity.y = 0;
+            p->is_grounded = true;
         }
     }
 
-    p->velocity.x = std::fmax(std::fmin(p->velocity.x, p->max_speed), -p->max_speed);
-
-    p->position.x += p->velocity.x;  // * delta?
+    p->position.x += p->velocity.x * delta; 
     p->position.y += p->velocity.y * delta;
 }
 
@@ -86,8 +92,8 @@ static bool CheckCollisionX(player_t *p, Block *b)
 static bool CheckCollisionY(player_t *p, Block *b)
 {
     // Predict next Y
-    bool collision_y = p->position.y + 1.0f + p->body.y >= b->m_position.y &&
-                       b->m_position.y + b->m_size.y >= 1.0f + p->position.y;
+    bool collision_y = p->position.y + p->direction.y + p->body.y >= b->m_position.y &&
+                       b->m_position.y + b->m_size.y >= p->direction.y + p->position.y;
 
     // Check current X
     bool collision_x = p->position.x + p->body.x >= b->m_position.x &&
@@ -95,20 +101,3 @@ static bool CheckCollisionY(player_t *p, Block *b)
                        
     return collision_y && collision_x;
 }
-
-// static bool CheckCollision(player_t *p, Block *b)
-// {
-//     // is colliding x
-//     bool collision_x = p->position.x + p->body.x >= b->m_position.x &&
-//                   b->m_position.x + b->m_size.x >= p->position.x;
-
-//     // moves into wall x
-//     bool move_x = p->position.x + p->velocity.x + p->body.x >= b->m_position.x &&
-//                    b->m_position.x + b->m_size.x >= p->velocity.x + p->position.x;
-
-//     // is colliding y
-//     bool collision_y = p->position.y + p->body.y >= b->m_position.y &&
-//                   b->m_position.y + b->m_size.y >= p->position.y;                   
-
-//     return (collision_x && move_x) && collision_y;
-// }

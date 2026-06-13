@@ -8,6 +8,7 @@
 #include "lmath.h"
 
 typedef struct {
+    bool is_grounded;
     float max_speed;
     vector2f_t body;
     vector2f_t position;

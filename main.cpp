@@ -12,7 +12,7 @@
 #include <SDL3/SDL_main.h>
 
 #include <cstdlib>
-#include <cstdio>
+#include <iostream>
 #include <vector>
 
 #include "include/player.h"
@@ -46,6 +46,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     SDL_SetRenderLogicalPresentation(renderer, 640, 480, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
     player = {
+        .is_grounded = false,
         .max_speed = 100.0,
         .body = {32.0, 32.0},
         .position = {100.0f, 100.0f},
@@ -76,21 +77,37 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 
     if (event->type == SDL_EVENT_KEY_DOWN)
     {
-        if (event->key.key == SDLK_D) 
-        {
-            player.direction.x = 1;
-            printf("D pressed\n");
+        switch (event->key.key) {
+        
+            case SDLK_D:
+                player.direction.x = 1;
+                std::cout << "D pressed" << std::endl;
+                break;
+
+            case SDLK_A:
+                player.direction.x = -1;
+                std::cout << "A pressed" << std::endl;
+                break;
+
+            default:
+                std::cout << "Not supported key" << std::endl;
+                break;
         }
-        else if (event->key.key == SDLK_A) 
+        
+        if (event->key.key == SDLK_SPACE)
         {
-            player.direction.x = -1;
-            printf("A pressed\n");
+            // if (player.is_grounded)
+            // {
+            //     player.direction.y = -1;
+            // }
+
+            std::cout << "Space pressed" << std::endl;
         }
     }
 
     if (event->type == SDL_EVENT_KEY_UP)
     {
-        player.direction = {0, 0};
+        player.direction.x = 0;
     }
 
     return SDL_APP_CONTINUE;  /* carry on with the program! */
@@ -105,7 +122,10 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     last_tick = current_tick;
 
     MovePlayer(&player, delta_time, blocks);
-    
+
+    // if (player.is_grounded) std::cout << "Player is grounded" << std::endl;
+    // else std::cout << "Player is not grounded" << std::endl;
+
     printf("Velocity = %f, %f\n", player.velocity.x, player.velocity.y);
 
     // Clear screen
