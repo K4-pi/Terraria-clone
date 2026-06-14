@@ -1,4 +1,7 @@
 #include "include/lmath.h"
+#include <SDL3/SDL_mouse.h>
+#include <algorithm>
+#include <cstddef>
 #define SDL_MAIN_USE_CALLBACKS 1  /* use the callbacks instead of main() */
 
 #include <SDL3/SDL_stdinc.h>
@@ -14,6 +17,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <vector>
+#include <cmath>
 
 #include "include/player.h"
 #include "include/block.h"
@@ -23,13 +27,21 @@ static SDL_Renderer *renderer = NULL;
 
 std::vector<Block> blocks;
 
-bool d_pressed     = false;
-bool a_pressed     = false;
-bool space_pressed = false;
+static bool d_pressed     = false;
+static bool a_pressed     = false;
+static bool space_pressed = false;
+
+SDL_MouseButtonFlags mouse_buttons;
+
+static vector2f_t mouse_position;
 
 static player_t player;
 
 static Uint64 last_tick;
+
+#define GREEN  {0, 255, 0, 0}
+#define RED    {255, 0, 0, 0}
+#define HOVER {128, 128, 128, 0}
 
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
@@ -58,12 +70,20 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         .direction = {0, 0},
     };
 
-    blocks.push_back(Block ({275.0f, 100.0f}, {32.0f, 32.0f}, "grass", true));
-    blocks.push_back(Block ({50.0f, 100.0f}, {32.0f, 32.0f}, "grass", true));
+    int cords[4][10] = {
+        {1, 0, 0, 0, 0, 1, 0, 0, 0, 1},
+        {1, 1, 1, 0, 0, 0, 0, 0, 1, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+    };
 
-    for (int i = 0; i < 9; i++)
+    for (int i=0; i < 4; i++)
     {
-        blocks.push_back(Block ({50.0f + 32.0f * i, 164.0f}, {32.0f, 32.0f}, "grass", true));
+        for (int j=0; j < 10; j++)
+        {
+            if (cords[i][j] == 1)
+                blocks.push_back(Block ({50.0f + j * 32.0f, 100.0f + i * 32.0f}, {32.0f, 32.0f}, GREEN, "grass", true, false));
+        }
     }
 
     last_tick = SDL_GetTicks();
@@ -74,9 +94,28 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 /* This function runs when a new event (mouse input, keypresses, etc) occurs. */
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
+    mouse_buttons = SDL_GetMouseState(&mouse_position.x, &mouse_position.y);
+
     if (event->type == SDL_EVENT_QUIT) 
     {
         return SDL_APP_SUCCESS;  /* end the program, reporting success to the OS. */
+    }
+
+    if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN)
+    {
+        if (mouse_buttons & SDL_BUTTON_LMASK)
+        {
+            for (Block b : blocks)
+            {
+                if (b.m_hovered)
+                {
+                    
+                    break;
+                }
+            }
+
+            std::cout << "left mouse pressed" << std::endl;
+        }
     }
 
     if (event->type == SDL_EVENT_KEY_DOWN)
@@ -162,6 +201,9 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         }
     }
 
+    // std::cout << "Mouse postion = " << mouse_position.x << ", " << mouse_position.y << std::endl;
+
+
     MovePlayer(&player, delta_time, blocks);
 
     // if (player.is_grounded) std::cout << "Player is grounded" << std::endl;
@@ -175,10 +217,27 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
     // Draw here
 
-    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 0);
-    
     for (Block b : blocks)
     {
+
+        if (std::fmax(std::fmin(mouse_position.x, b.m_position.x + 32.0f), b.m_position.x) == mouse_position.x)
+        {
+            if (std::fmax(std::fmin(mouse_position.y, b.m_position.y + 32.0f), b.m_position.y) == mouse_position.y)
+            {
+                b.m_hovered = true;
+            }
+            else
+            {
+                b.m_hovered = false;
+            }
+        }
+
+        if (b.m_hovered)
+            SDL_SetRenderDrawColor(renderer, 128, 128, 128, 0);
+
+        else
+            SDL_SetRenderDrawColor(renderer, 0, 255, 0, 0);
+        
         SDL_FRect rect = {
             .x = b.m_position.x,
             .y = b.m_position.y,

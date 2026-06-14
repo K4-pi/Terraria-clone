@@ -7,3 +7,7 @@ typedef struct {
 typedef struct {
     int x, y;
 } vector2_t;
+
+typedef struct {
+    int r, g, b, a;
+} RGBA_t;

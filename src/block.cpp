@@ -4,10 +4,12 @@
 
 #include <string>
 
-Block::Block(vector2f_t position, vector2f_t size, std::string name, bool collision=true)
+Block::Block(vector2f_t position, vector2f_t size, RGBA_t sprite, std::string name, bool collision=true, bool hovered=false)
 {
     m_position = position;
     m_size = size;
-    m_collision = collision;
+    m_sprite = sprite;
     m_name = name;
+    m_collision = collision;
+    m_hovered = hovered;
 }
