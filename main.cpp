@@ -14,6 +14,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
+#include <algorithm>
 #include <cstdlib>
 #include <iostream>
 #include <vector>
@@ -22,16 +23,18 @@
 #include "include/player.h"
 #include "include/block.h"
 
+static constexpr vector2_t BASE_RESOLUTION = {1920, 1080};
+
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
 
-std::vector<Block> blocks;
+std::vector<Block> blocks(32 * 32);
 
 static bool d_pressed     = false;
 static bool a_pressed     = false;
 static bool space_pressed = false;
 
-SDL_MouseButtonFlags mouse_buttons;
+static SDL_MouseButtonFlags mouse_buttons;
 
 static vector2f_t mouse_position;
 
@@ -54,7 +57,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         return SDL_APP_FAILURE;
     }
 
-    if (!SDL_CreateWindowAndRenderer("examples/renderer/clear", 640, 480, SDL_WINDOW_RESIZABLE, &window, &renderer)) 
+    if (!SDL_CreateWindowAndRenderer("examples/renderer/clear", 1920, 1080, SDL_WINDOW_RESIZABLE, &window, &renderer)) 
     {
         SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
         return SDL_APP_FAILURE;
@@ -70,21 +73,41 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         .direction = {0, 0},
     };
 
-    int cords[4][10] = {
-        {1, 0, 0, 0, 0, 1, 0, 0, 0, 1},
-        {1, 1, 1, 0, 0, 0, 0, 0, 1, 1},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
-    };
+    // int cords[6][10] = {
+    //     {0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
+    //     {0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
+    //     {1, 0, 0, 0, 0, 1, 0, 0, 0, 1},
+    //     {1, 1, 1, 0, 0, 0, 0, 0, 1, 1},
+    //     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    //     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+    // };
 
-    for (int i=0; i < 4; i++)
+    // for (int i=0; i < 6; i++)
+    // {
+    //     for (int j=0; j < 10; j++)
+    //     {
+    //         if (cords[i][j] == 1)
+    //             blocks.push_back(Block ({50.0f + j * 32.0f, 100.0f + i * 32.0f}, {32.0f, 32.0f}, GREEN, "grass", true, false));
+    //     }
+    // }
+
+    int y = 0;
+    int x = 0;
+    for (int i=0; i < 32 * 32; i++)
     {
-        for (int j=0; j < 10; j++)
+        if ((x = i % 32) == 0) y++;
+
+        if (y < 8)
         {
-            if (cords[i][j] == 1)
-                blocks.push_back(Block ({50.0f + j * 32.0f, 100.0f + i * 32.0f}, {32.0f, 32.0f}, GREEN, "grass", true, false));
+            blocks[i] = Block({50.0f + x * 32.0f, 100.0f + y * 32.0f}, {32.0f, 32.0f}, {0, 128, 196, 0}, "grass", false, false);
+        }
+        else 
+        {
+            blocks[i] = Block ({50.0f + x * 32.0f, 100.0f + y * 32.0f}, {32.0f, 32.0f}, GREEN, "grass", true, false);
         }
     }
+
+    SDL_SetRenderLogicalPresentation(renderer, BASE_RESOLUTION.x, BASE_RESOLUTION.y, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
     last_tick = SDL_GetTicks();
 
@@ -94,7 +117,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 /* This function runs when a new event (mouse input, keypresses, etc) occurs. */
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
+    
     mouse_buttons = SDL_GetMouseState(&mouse_position.x, &mouse_position.y);
+    SDL_RenderCoordinatesFromWindow(renderer, mouse_position.x, mouse_position.y, &mouse_position.x, &mouse_position.y);
 
     if (event->type == SDL_EVENT_QUIT) 
     {
@@ -105,15 +130,6 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
     {
         if (mouse_buttons & SDL_BUTTON_LMASK)
         {
-            for (Block b : blocks)
-            {
-                if (b.m_hovered)
-                {
-                    
-                    break;
-                }
-            }
-
             std::cout << "left mouse pressed" << std::endl;
         }
     }
@@ -201,7 +217,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         }
     }
 
-    // std::cout << "Mouse postion = " << mouse_position.x << ", " << mouse_position.y << std::endl;
+    std::cout << "Mouse postion = " << mouse_position.x << ", " << mouse_position.y << std::endl;
 
 
     MovePlayer(&player, delta_time, blocks);
@@ -219,24 +235,17 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
     for (Block b : blocks)
     {
+        bool hover_x = std::fmax(std::fmin(mouse_position.x, b.m_position.x + b.m_size.x), b.m_position.x) == mouse_position.x;
+        bool hover_y = std::fmax(std::fmin(mouse_position.y, b.m_position.y + b.m_size.y), b.m_position.y) == mouse_position.y;
 
-        if (std::fmax(std::fmin(mouse_position.x, b.m_position.x + 32.0f), b.m_position.x) == mouse_position.x)
-        {
-            if (std::fmax(std::fmin(mouse_position.y, b.m_position.y + 32.0f), b.m_position.y) == mouse_position.y)
-            {
-                b.m_hovered = true;
-            }
-            else
-            {
-                b.m_hovered = false;
-            }
-        }
+        if (hover_x && hover_y) b.m_hovered = true;
+        else b.m_hovered = false;
 
         if (b.m_hovered)
-            SDL_SetRenderDrawColor(renderer, 128, 128, 128, 0);
+            SDL_SetRenderDrawColor(renderer, 128, 128, 128, 100);
 
         else
-            SDL_SetRenderDrawColor(renderer, 0, 255, 0, 0);
+            SDL_SetRenderDrawColor(renderer, b.m_sprite.r, b.m_sprite.g, b.m_sprite.b, 0);
         
         SDL_FRect rect = {
             .x = b.m_position.x,

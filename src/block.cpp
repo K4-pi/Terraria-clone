@@ -4,6 +4,8 @@
 
 #include <string>
 
+Block::Block(){};
+
 Block::Block(vector2f_t position, vector2f_t size, RGBA_t sprite, std::string name, bool collision=true, bool hovered=false)
 {
     m_position = position;

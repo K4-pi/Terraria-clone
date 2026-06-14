@@ -52,6 +52,8 @@ void MovePlayer(player_t *p, float delta, std::vector<Block> b)
 
     for (Block block : b)
     {
+        if (!block.m_collision) continue;
+
         if (CheckCollisionX(p, &block, delta))
         {
             if (p->velocity.x > 0) // Going right
@@ -73,6 +75,8 @@ void MovePlayer(player_t *p, float delta, std::vector<Block> b)
 
     for (Block block : b)
     {
+        if (!block.m_collision) continue;
+
         if (CheckCollisionY(p, &block, delta))
         {
             if (p->velocity.y > 0) // Falling

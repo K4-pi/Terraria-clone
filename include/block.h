@@ -13,5 +13,6 @@ class Block {
         bool m_collision;
         bool m_hovered;
 
+        Block();
         Block(vector2f_t position, vector2f_t size, RGBA_t sprite, std::string name, bool collision, bool hovered);
 };
