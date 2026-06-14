@@ -4,13 +4,11 @@
 #include "../include/player.h"
 #include "../include/block.h"
 
-#include <iostream>
-
 #include <vector>
 #include <cmath>
 
-static bool CheckCollisionX(player_t *p, Block *b);
-static bool CheckCollisionY(player_t *p, Block *b);
+static bool CheckCollisionX(player_t *p, Block *b, float delta);
+static bool CheckCollisionY(player_t *p, Block *b, float delta);
 
 void DrawPlayer(SDL_Renderer *renderer, player_t *p)
 {
@@ -29,13 +27,12 @@ void DrawPlayer(SDL_Renderer *renderer, player_t *p)
 
 void MovePlayer(player_t *p, float delta, std::vector<Block> b)
 {
-    const float acceleration = 5000.0f;
-    const float friction     = 500.0f;
-    const float mass         = 100.0f;
+    const float acceleration = 1.10f;
+    const float friction     = 350.0f;
 
     if (p->direction.x != 0)
     {
-        p->velocity.x += p->direction.x * acceleration * delta;
+        p->velocity.x += p->direction.x * acceleration * 500.0f * delta;
     }
     else 
     {
@@ -53,51 +50,74 @@ void MovePlayer(player_t *p, float delta, std::vector<Block> b)
 
     p->velocity.x = std::fmax(std::fmin(p->velocity.x, p->max_speed), -p->max_speed);
 
-    p->velocity.y += 9.81f * p->direction.y * mass * delta;  // gravity
-    
-    if (!p->is_grounded) p->direction.y = 1;
-
-    p->is_grounded = false; // resetuj co klatkę
     for (Block block : b)
     {
-        if (CheckCollisionX(p, &block))
+        if (CheckCollisionX(p, &block, delta))
         {
-            p->velocity.x = 0;
-        }
+            if (p->velocity.x > 0) // Going right
+            {
+                p->position.x = block.m_position.x - p->body.x;
+            }
+            else if (p->velocity.x < 0) // Going left
+            {
+                p->position.x = block.m_position.x + block.m_size.x;
+            }
 
-        if (CheckCollisionY(p, &block))
-        {
-            p->velocity.y = 0;
-            p->is_grounded = true;
+            p->velocity.x = 0; // Zatrzymaj ruch w bok
+            break;
         }
     }
+    p->position.x += p->velocity.x * delta; // Wykonaj bezpieczny ruch X
 
-    p->position.x += p->velocity.x * delta; 
+    p->velocity.y += 981.0f * delta;  // gravity
+
+    for (Block block : b)
+    {
+        if (CheckCollisionY(p, &block, delta))
+        {
+            if (p->velocity.y > 0) // Falling
+            {
+                p->position.y = block.m_position.y - p->body.y;
+                p->is_grounded = true;
+            }
+            else if (p->velocity.y < 0) // Jumping
+            {
+                p->position.y = block.m_position.y + block.m_size.y;
+            }
+
+            p->velocity.y = 0;
+            break;
+        }
+    } 
     p->position.y += p->velocity.y * delta;
 }
 
-static bool CheckCollisionX(player_t *p, Block *b)
+static bool CheckCollisionX(player_t *p, Block *b, float delta)
 {
-    // Predict next X
-    bool collision_x = p->position.x + p->direction.x + p->body.x >= b->m_position.x &&
-                       b->m_position.x + b->m_size.x >= p->direction.x + p->position.x;
+    // next x
+    float next_x = p->position.x + (p->velocity.x * delta);
 
-    // Check current Y
-    bool collision_y = p->position.y + p->body.y >= b->m_position.y &&
-                       b->m_position.y + b->m_size.y >= p->position.y;
+    bool collision_x = next_x + p->body.x > b->m_position.x &&
+                       b->m_position.x + b->m_size.x > next_x;
+
+    // current collision y
+    bool collision_y = p->position.y + p->body.y > b->m_position.y &&
+                       b->m_position.y + b->m_size.y > p->position.y;
 
     return collision_x && collision_y;
 }
 
-static bool CheckCollisionY(player_t *p, Block *b)
+static bool CheckCollisionY(player_t *p, Block *b, float delta)
 {
-    // Predict next Y
-    bool collision_y = p->position.y + p->direction.y + p->body.y >= b->m_position.y &&
-                       b->m_position.y + b->m_size.y >= p->direction.y + p->position.y;
+    // current collision x
+    bool collision_x = p->position.x + p->body.x > b->m_position.x &&
+                       b->m_position.x + b->m_size.x > p->position.x;   
 
-    // Check current X
-    bool collision_x = p->position.x + p->body.x >= b->m_position.x &&
-                       b->m_position.x + b->m_size.x >= p->position.x;   
+    // next y
+    float next_y = p->position.y + (p->velocity.y * delta);
+
+    bool collision_y = next_y + p->body.y > b->m_position.y &&
+                       b->m_position.y + b->m_size.y > next_y;
                        
     return collision_y && collision_x;
 }

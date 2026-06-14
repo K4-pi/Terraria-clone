@@ -23,6 +23,10 @@ static SDL_Renderer *renderer = NULL;
 
 std::vector<Block> blocks;
 
+bool d_pressed     = false;
+bool a_pressed     = false;
+bool space_pressed = false;
+
 static player_t player;
 
 static Uint64 last_tick;
@@ -47,7 +51,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     player = {
         .is_grounded = false,
-        .max_speed = 100.0,
+        .max_speed = 200.0,
         .body = {32.0, 32.0},
         .position = {100.0f, 100.0f},
         .velocity = {0.0, 0.0},
@@ -77,37 +81,52 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 
     if (event->type == SDL_EVENT_KEY_DOWN)
     {
-        switch (event->key.key) {
-        
+        switch (event->key.key) 
+        {
             case SDLK_D:
-                player.direction.x = 1;
+                d_pressed = true;
                 std::cout << "D pressed" << std::endl;
                 break;
 
             case SDLK_A:
-                player.direction.x = -1;
+                a_pressed = true;
                 std::cout << "A pressed" << std::endl;
+                break;
+
+            case SDLK_SPACE:
+                space_pressed = true;
+                std::cout << "Space pressed" << std::endl;
                 break;
 
             default:
                 std::cout << "Not supported key" << std::endl;
                 break;
         }
-        
-        if (event->key.key == SDLK_SPACE)
-        {
-            // if (player.is_grounded)
-            // {
-            //     player.direction.y = -1;
-            // }
-
-            std::cout << "Space pressed" << std::endl;
-        }
     }
 
-    if (event->type == SDL_EVENT_KEY_UP)
+    else if (event->type == SDL_EVENT_KEY_UP)
     {
-        player.direction.x = 0;
+        switch (event->key.key) 
+        {
+            case SDLK_D:
+                d_pressed = false;
+                std::cout << "D unpressed" << std::endl;
+                break;
+
+            case SDLK_A:
+                a_pressed = false;
+                std::cout << "A unpressed" << std::endl;
+                break;
+
+            case SDLK_SPACE:
+                space_pressed = false;
+                std::cout << "Space unpressed" << std::endl;
+                break;
+
+            default:
+                std::cout << "Not supported key" << std::endl;
+                break;
+        }
     }
 
     return SDL_APP_CONTINUE;  /* carry on with the program! */
@@ -121,12 +140,34 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     float delta_time = (current_tick - last_tick) / 1000.0f;
     last_tick = current_tick;
 
+    if (a_pressed && !d_pressed)
+    {
+        player.direction.x = -1;
+    }
+    else if (!a_pressed && d_pressed)
+    {
+        player.direction.x = 1;
+    }
+    else 
+    {
+        player.direction.x = 0;
+    }
+
+    if (space_pressed)
+    {
+        if (player.is_grounded)
+        {
+            player.velocity.y = -400.0f;
+            player.is_grounded = false;
+        }
+    }
+
     MovePlayer(&player, delta_time, blocks);
 
     // if (player.is_grounded) std::cout << "Player is grounded" << std::endl;
     // else std::cout << "Player is not grounded" << std::endl;
 
-    printf("Velocity = %f, %f\n", player.velocity.x, player.velocity.y);
+    // printf("Velocity = %f, %f\n", player.velocity.x, player.velocity.y);
 
     // Clear screen
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
