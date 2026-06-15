@@ -1,9 +1,7 @@
-#include "include/lmath.h"
-#include <SDL3/SDL_mouse.h>
-#include <algorithm>
-#include <cstddef>
+#include <memory>
 #define SDL_MAIN_USE_CALLBACKS 1  /* use the callbacks instead of main() */
 
+#include <SDL3/SDL_mouse.h>
 #include <SDL3/SDL_stdinc.h>
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_events.h>
@@ -14,12 +12,13 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
-#include <algorithm>
+#include <cstddef>
 #include <cstdlib>
 #include <iostream>
 #include <vector>
 #include <cmath>
 
+#include "include/lmath.h"
 #include "include/player.h"
 #include "include/block.h"
 
@@ -28,15 +27,16 @@ static constexpr vector2_t BASE_RESOLUTION = {1920, 1080};
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
 
+static SDL_MouseButtonFlags mouse_buttons;
+static vector2f_t mouse_position;
+
 std::vector<Block> blocks(32 * 32);
+
+Block* hovered_block = new Block();
 
 static bool d_pressed     = false;
 static bool a_pressed     = false;
 static bool space_pressed = false;
-
-static SDL_MouseButtonFlags mouse_buttons;
-
-static vector2f_t mouse_position;
 
 static player_t player;
 
@@ -44,7 +44,8 @@ static Uint64 last_tick;
 
 #define GREEN  {0, 255, 0, 0}
 #define RED    {255, 0, 0, 0}
-#define HOVER {128, 128, 128, 0}
+#define HOVER  {128, 128, 128, 0}
+#define PURPLE {128, 0, 128, 0}
 
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
@@ -73,24 +74,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         .direction = {0, 0},
     };
 
-    // int cords[6][10] = {
-    //     {0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
-    //     {0, 0, 0, 0, 0, 1, 0, 0, 0, 0},
-    //     {1, 0, 0, 0, 0, 1, 0, 0, 0, 1},
-    //     {1, 1, 1, 0, 0, 0, 0, 0, 1, 1},
-    //     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    //     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
-    // };
-
-    // for (int i=0; i < 6; i++)
-    // {
-    //     for (int j=0; j < 10; j++)
-    //     {
-    //         if (cords[i][j] == 1)
-    //             blocks.push_back(Block ({50.0f + j * 32.0f, 100.0f + i * 32.0f}, {32.0f, 32.0f}, GREEN, "grass", true, false));
-    //     }
-    // }
-
     int y = 0;
     int x = 0;
     for (int i=0; i < 32 * 32; i++)
@@ -99,13 +82,15 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
         if (y < 8)
         {
-            blocks[i] = Block({50.0f + x * 32.0f, 100.0f + y * 32.0f}, {32.0f, 32.0f}, {0, 128, 196, 0}, "grass", false, false);
+            blocks[i] = Block({50.0f + x * 32.0f, 100.0f + y * 32.0f}, {32.0f, 32.0f}, {0, 128, 196, 0}, "air", false, false);
         }
         else 
         {
             blocks[i] = Block ({50.0f + x * 32.0f, 100.0f + y * 32.0f}, {32.0f, 32.0f}, GREEN, "grass", true, false);
         }
     }
+
+    hovered_block = &blocks[16 * 16];
 
     SDL_SetRenderLogicalPresentation(renderer, BASE_RESOLUTION.x, BASE_RESOLUTION.y, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
@@ -131,6 +116,16 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
         if (mouse_buttons & SDL_BUTTON_LMASK)
         {
             std::cout << "left mouse pressed" << std::endl;
+            
+            if (hovered_block != nullptr)
+                *hovered_block = Block({hovered_block->m_position.x, hovered_block->m_position.y}, {32.0f, 32.0f}, {0, 128, 196, 0}, "air", false, false);
+        }
+        if (mouse_buttons & SDL_BUTTON_RMASK)
+        {
+            std::cout << "right mouse pressed" << std::endl;
+
+            if (hovered_block->m_name == "air")
+                *hovered_block = Block({hovered_block->m_position.x, hovered_block->m_position.y}, {32.0f, 32.0f}, PURPLE, "grass", true, false);
         }
     }
 
@@ -217,8 +212,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         }
     }
 
-    std::cout << "Mouse postion = " << mouse_position.x << ", " << mouse_position.y << std::endl;
-
+    // std::cout << "Mouse postion = " << mouse_position.x << ", " << mouse_position.y << std::endl;
 
     MovePlayer(&player, delta_time, blocks);
 
@@ -228,30 +222,33 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     // printf("Velocity = %f, %f\n", player.velocity.x, player.velocity.y);
 
     // Clear screen
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+    SDL_SetRenderDrawColor(renderer, 0, 128, 196, 0);
     SDL_RenderClear(renderer);
 
     // Draw here
 
-    for (Block b : blocks)
+    for (size_t i=0; i < blocks.size(); i++)
     {
-        bool hover_x = std::fmax(std::fmin(mouse_position.x, b.m_position.x + b.m_size.x), b.m_position.x) == mouse_position.x;
-        bool hover_y = std::fmax(std::fmin(mouse_position.y, b.m_position.y + b.m_size.y), b.m_position.y) == mouse_position.y;
+        bool hover_x = std::fmax(std::fmin(mouse_position.x, blocks[i].m_position.x + blocks[i].m_size.x), blocks[i].m_position.x) == mouse_position.x;
+        bool hover_y = std::fmax(std::fmin(mouse_position.y, blocks[i].m_position.y + blocks[i].m_size.y), blocks[i].m_position.y) == mouse_position.y;
 
-        if (hover_x && hover_y) b.m_hovered = true;
-        else b.m_hovered = false;
+        if (hover_x && hover_y) blocks[i].m_hovered = true;
+        else blocks[i].m_hovered = false;
 
-        if (b.m_hovered)
+        if (blocks[i].m_hovered)
+        {
+            hovered_block = &blocks[i];
             SDL_SetRenderDrawColor(renderer, 128, 128, 128, 100);
+        }
 
         else
-            SDL_SetRenderDrawColor(renderer, b.m_sprite.r, b.m_sprite.g, b.m_sprite.b, 0);
+            SDL_SetRenderDrawColor(renderer, blocks[i].m_sprite.r, blocks[i].m_sprite.g, blocks[i].m_sprite.b, 0);
         
         SDL_FRect rect = {
-            .x = b.m_position.x,
-            .y = b.m_position.y,
-            .w = b.m_size.x,
-            .h = b.m_size.y,
+            .x = blocks[i].m_position.x,
+            .y = blocks[i].m_position.y,
+            .w = blocks[i].m_size.x,
+            .h = blocks[i].m_size.y,
         };
 
         SDL_RenderFillRect(renderer, &rect);
@@ -269,4 +266,5 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
     /* SDL will clean up the window/renderer for us. */
+    delete hovered_block;
 }
