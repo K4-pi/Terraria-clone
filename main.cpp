@@ -1,4 +1,4 @@
-#include <memory>
+#include <SDL3/SDL_video.h>
 #define SDL_MAIN_USE_CALLBACKS 1  /* use the callbacks instead of main() */
 
 #include <SDL3/SDL_mouse.h>
@@ -11,6 +11,7 @@
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
+#include <SDL3_image/SDL_image.h>
 
 #include <cstddef>
 #include <cstdlib>
@@ -18,6 +19,7 @@
 #include <vector>
 #include <cmath>
 
+#include "include/blocks_ids.h"
 #include "include/lmath.h"
 #include "include/player.h"
 #include "include/block.h"
@@ -30,9 +32,11 @@ static SDL_Renderer *renderer = NULL;
 static SDL_MouseButtonFlags mouse_buttons;
 static vector2f_t mouse_position;
 
-std::vector<Block> blocks(32 * 32);
+std::vector<Block> blocks(128 * 128);
 
-Block* hovered_block = new Block();
+SDL_Texture *grass_tex;
+
+Block *hovered_block;
 
 static bool d_pressed     = false;
 static bool a_pressed     = false;
@@ -58,12 +62,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         return SDL_APP_FAILURE;
     }
 
-    if (!SDL_CreateWindowAndRenderer("examples/renderer/clear", 1920, 1080, SDL_WINDOW_RESIZABLE, &window, &renderer)) 
+    if (!SDL_CreateWindowAndRenderer("examples/renderer/clear", BASE_RESOLUTION.x, BASE_RESOLUTION.y, SDL_WINDOW_RESIZABLE, &window, &renderer)) 
     {
         SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
-    SDL_SetRenderLogicalPresentation(renderer, 640, 480, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+    SDL_SetRenderLogicalPresentation(renderer, BASE_RESOLUTION.x, BASE_RESOLUTION.y, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
     player = {
         .is_grounded = false,
@@ -76,23 +80,21 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     int y = 0;
     int x = 0;
-    for (int i=0; i < 32 * 32; i++)
+    for (int i=0; i < blocks.size(); i++)
     {
-        if ((x = i % 32) == 0) y++;
+        if ((x = i % 128) == 0) y++;
 
         if (y < 8)
         {
-            blocks[i] = Block({50.0f + x * 32.0f, 100.0f + y * 32.0f}, {32.0f, 32.0f}, {0, 128, 196, 0}, "air", false, false);
+            blocks[i] = Block{{50.0f + x * 32.0f, 100.0f + y * 32.0f}, {32.0f, 32.0f}, {0, 128, 196, 0}, SKY_BLOCK_ID, false, false};
         }
         else 
         {
-            blocks[i] = Block ({50.0f + x * 32.0f, 100.0f + y * 32.0f}, {32.0f, 32.0f}, GREEN, "grass", true, false);
+            blocks[i] = Block{{50.0f + x * 32.0f, 100.0f + y * 32.0f}, {32.0f, 32.0f}, GREEN, GRASS_BLOCK_ID};
         }
     }
 
     hovered_block = &blocks[16 * 16];
-
-    SDL_SetRenderLogicalPresentation(renderer, BASE_RESOLUTION.x, BASE_RESOLUTION.y, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
     last_tick = SDL_GetTicks();
 
@@ -102,7 +104,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 /* This function runs when a new event (mouse input, keypresses, etc) occurs. */
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
-    
     mouse_buttons = SDL_GetMouseState(&mouse_position.x, &mouse_position.y);
     SDL_RenderCoordinatesFromWindow(renderer, mouse_position.x, mouse_position.y, &mouse_position.x, &mouse_position.y);
 
@@ -118,14 +119,14 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
             std::cout << "left mouse pressed" << std::endl;
             
             if (hovered_block != nullptr)
-                *hovered_block = Block({hovered_block->m_position.x, hovered_block->m_position.y}, {32.0f, 32.0f}, {0, 128, 196, 0}, "air", false, false);
+                *hovered_block = Block{{hovered_block->m_position.x, hovered_block->m_position.y}, {32.0f, 32.0f}, {0, 128, 196, 0}, SKY_BLOCK_ID, false, false};
         }
         if (mouse_buttons & SDL_BUTTON_RMASK)
         {
             std::cout << "right mouse pressed" << std::endl;
 
-            if (hovered_block->m_name == "air")
-                *hovered_block = Block({hovered_block->m_position.x, hovered_block->m_position.y}, {32.0f, 32.0f}, PURPLE, "grass", true, false);
+            if (hovered_block->m_id == SKY_BLOCK_ID)
+                *hovered_block = Block{{hovered_block->m_position.x, hovered_block->m_position.y}, {32.0f, 32.0f}, PURPLE, GRASS_BLOCK_ID};
         }
     }
 
@@ -205,7 +206,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
     if (space_pressed)
     {
-        if (player.is_grounded)
+        if (player.is_grounded && player.velocity.y == 0.0f)
         {
             player.velocity.y = -400.0f;
             player.is_grounded = false;
@@ -227,22 +228,25 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
     // Draw here
 
+    // dont redraw everytime, only when player changes blocks
+
     for (size_t i=0; i < blocks.size(); i++)
     {
         bool hover_x = std::fmax(std::fmin(mouse_position.x, blocks[i].m_position.x + blocks[i].m_size.x), blocks[i].m_position.x) == mouse_position.x;
         bool hover_y = std::fmax(std::fmin(mouse_position.y, blocks[i].m_position.y + blocks[i].m_size.y), blocks[i].m_position.y) == mouse_position.y;
 
-        if (hover_x && hover_y) blocks[i].m_hovered = true;
-        else blocks[i].m_hovered = false;
-
-        if (blocks[i].m_hovered)
+        if (hover_x && hover_y)
         {
+            blocks[i].m_hovered = true;
+
             hovered_block = &blocks[i];
             SDL_SetRenderDrawColor(renderer, 128, 128, 128, 100);
         }
-
-        else
+        else 
+        {
+            blocks[i].m_hovered = false;
             SDL_SetRenderDrawColor(renderer, blocks[i].m_sprite.r, blocks[i].m_sprite.g, blocks[i].m_sprite.b, 0);
+        }   
         
         SDL_FRect rect = {
             .x = blocks[i].m_position.x,
@@ -265,6 +269,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 /* This function runs once at shutdown. */
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
+
+
     /* SDL will clean up the window/renderer for us. */
-    delete hovered_block;
 }
