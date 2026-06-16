@@ -19,7 +19,7 @@
 #include <vector>
 #include <cmath>
 
-#include "include/blocks_ids.h"
+#include "include/id.h"
 #include "include/lmath.h"
 #include "include/player.h"
 #include "include/block.h"
@@ -38,18 +38,14 @@ SDL_Texture *grass_tex;
 
 Block *hovered_block;
 
-static bool d_pressed     = false;
-static bool a_pressed     = false;
-static bool space_pressed = false;
-
-static player_t player;
-
 static Uint64 last_tick;
 
 #define GREEN  {0, 255, 0, 0}
 #define RED    {255, 0, 0, 0}
 #define HOVER  {128, 128, 128, 0}
 #define PURPLE {128, 0, 128, 0}
+
+static Player player = Player({100.0f, 100.0f}, {32.0f, 32.0f}, RED, PLAYER, 200.0f, true);
 
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
@@ -68,15 +64,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         return SDL_APP_FAILURE;
     }
     SDL_SetRenderLogicalPresentation(renderer, BASE_RESOLUTION.x, BASE_RESOLUTION.y, SDL_LOGICAL_PRESENTATION_LETTERBOX);
-
-    player = {
-        .is_grounded = false,
-        .max_speed = 200.0,
-        .body = {32.0, 32.0},
-        .position = {100.0f, 100.0f},
-        .velocity = {0.0, 0.0},
-        .direction = {0, 0},
-    };
 
     int y = 0;
     int x = 0;
@@ -104,13 +91,13 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 /* This function runs when a new event (mouse input, keypresses, etc) occurs. */
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
-    mouse_buttons = SDL_GetMouseState(&mouse_position.x, &mouse_position.y);
-    SDL_RenderCoordinatesFromWindow(renderer, mouse_position.x, mouse_position.y, &mouse_position.x, &mouse_position.y);
-
     if (event->type == SDL_EVENT_QUIT) 
     {
         return SDL_APP_SUCCESS;  /* end the program, reporting success to the OS. */
     }
+
+    mouse_buttons = SDL_GetMouseState(&mouse_position.x, &mouse_position.y);
+    SDL_RenderCoordinatesFromWindow(renderer, mouse_position.x, mouse_position.y, &mouse_position.x, &mouse_position.y);
 
     if (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN)
     {
@@ -135,17 +122,17 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
         switch (event->key.key) 
         {
             case SDLK_D:
-                d_pressed = true;
+                player.keys_pressed.D = true;
                 std::cout << "D pressed" << std::endl;
                 break;
 
             case SDLK_A:
-                a_pressed = true;
+                player.keys_pressed.A = true;
                 std::cout << "A pressed" << std::endl;
                 break;
 
             case SDLK_SPACE:
-                space_pressed = true;
+                player.keys_pressed.SPACE = true;
                 std::cout << "Space pressed" << std::endl;
                 break;
 
@@ -160,17 +147,17 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
         switch (event->key.key) 
         {
             case SDLK_D:
-                d_pressed = false;
+                player.keys_pressed.D = false;
                 std::cout << "D unpressed" << std::endl;
                 break;
 
             case SDLK_A:
-                a_pressed = false;
+                player.keys_pressed.A = false;
                 std::cout << "A unpressed" << std::endl;
                 break;
 
             case SDLK_SPACE:
-                space_pressed = false;
+                player.keys_pressed.SPACE = false;
                 std::cout << "Space unpressed" << std::endl;
                 break;
 
@@ -179,6 +166,8 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
                 break;
         }
     }
+
+    player.HandleInput();
 
     return SDL_APP_CONTINUE;  /* carry on with the program! */
 }
@@ -191,31 +180,9 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     float delta_time = (current_tick - last_tick) / 1000.0f;
     last_tick = current_tick;
 
-    if (a_pressed && !d_pressed)
-    {
-        player.direction.x = -1;
-    }
-    else if (!a_pressed && d_pressed)
-    {
-        player.direction.x = 1;
-    }
-    else 
-    {
-        player.direction.x = 0;
-    }
-
-    if (space_pressed)
-    {
-        if (player.is_grounded && player.velocity.y == 0.0f)
-        {
-            player.velocity.y = -400.0f;
-            player.is_grounded = false;
-        }
-    }
-
     // std::cout << "Mouse postion = " << mouse_position.x << ", " << mouse_position.y << std::endl;
 
-    MovePlayer(&player, delta_time, blocks);
+    player.MovePlayer(delta_time, blocks);
 
     // if (player.is_grounded) std::cout << "Player is grounded" << std::endl;
     // else std::cout << "Player is not grounded" << std::endl;
@@ -258,7 +225,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         SDL_RenderFillRect(renderer, &rect);
     }
 
-    DrawPlayer(renderer, &player);
+    player.Draw(renderer);
 
     /* put the newly-cleared rendering on the screen. */
     SDL_RenderPresent(renderer);
