@@ -52,13 +52,13 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
     SDL_SetAppMetadata("Example Renderer Clear", "1.0", "com.example.renderer-clear");
 
-    if (!SDL_Init(SDL_INIT_VIDEO)) 
+    if (!SDL_Init(SDL_INIT_VIDEO))
     {
         SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
 
-    if (!SDL_CreateWindowAndRenderer("examples/renderer/clear", BASE_RESOLUTION.x, BASE_RESOLUTION.y, SDL_WINDOW_RESIZABLE, &window, &renderer)) 
+    if (!SDL_CreateWindowAndRenderer("examples/renderer/clear", BASE_RESOLUTION.x, BASE_RESOLUTION.y, SDL_WINDOW_RESIZABLE, &window, &renderer))
     {
         SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
         return SDL_APP_FAILURE;
@@ -73,11 +73,24 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
         if (y < 8)
         {
-            blocks[i] = Block{{50.0f + x * 32.0f, 100.0f + y * 32.0f}, {32.0f, 32.0f}, {0, 128, 196, 0}, SKY_BLOCK_ID, false, false};
+            blocks[i] = Block
+            {
+                {50.0f + x * 32.0f, 100.0f + y * 32.0f},
+                {32.0f, 32.0f}, {0, 128, 196, 0},
+                SKY_BLOCK_ID,
+                false,
+                false
+            };
         }
-        else 
+        else
         {
-            blocks[i] = Block{{50.0f + x * 32.0f, 100.0f + y * 32.0f}, {32.0f, 32.0f}, GREEN, GRASS_BLOCK_ID};
+            blocks[i] = Block
+            {
+                {50.0f + x * 32.0f, 100.0f + y * 32.0f},
+                {32.0f, 32.0f},
+                GREEN,
+                GRASS_BLOCK_ID
+            };
         }
     }
 
@@ -91,7 +104,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 /* This function runs when a new event (mouse input, keypresses, etc) occurs. */
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
-    if (event->type == SDL_EVENT_QUIT) 
+    if (event->type == SDL_EVENT_QUIT)
     {
         return SDL_APP_SUCCESS;  /* end the program, reporting success to the OS. */
     }
@@ -104,22 +117,35 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
         if (mouse_buttons & SDL_BUTTON_LMASK)
         {
             std::cout << "left mouse pressed" << std::endl;
-            
+
             if (hovered_block != nullptr)
-                *hovered_block = Block{{hovered_block->m_position.x, hovered_block->m_position.y}, {32.0f, 32.0f}, {0, 128, 196, 0}, SKY_BLOCK_ID, false, false};
+                *hovered_block = Block
+                {
+                    {hovered_block->m_position.x, hovered_block->m_position.y},
+                    {32.0f, 32.0f}, {0, 128, 196, 0},
+                    SKY_BLOCK_ID,
+                    false,
+                    false
+                };
         }
         if (mouse_buttons & SDL_BUTTON_RMASK)
         {
             std::cout << "right mouse pressed" << std::endl;
 
             if (hovered_block->m_id == SKY_BLOCK_ID)
-                *hovered_block = Block{{hovered_block->m_position.x, hovered_block->m_position.y}, {32.0f, 32.0f}, PURPLE, GRASS_BLOCK_ID};
+                *hovered_block = Block
+                {
+                    {hovered_block->m_position.x, hovered_block->m_position.y},
+                    {32.0f, 32.0f},
+                    PURPLE,
+                    GRASS_BLOCK_ID
+                };
         }
     }
 
     if (event->type == SDL_EVENT_KEY_DOWN)
     {
-        switch (event->key.key) 
+        switch (event->key.key)
         {
             case SDLK_D:
                 player.keys_pressed.D = true;
@@ -144,7 +170,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 
     else if (event->type == SDL_EVENT_KEY_UP)
     {
-        switch (event->key.key) 
+        switch (event->key.key)
         {
             case SDLK_D:
                 player.keys_pressed.D = false;
@@ -209,12 +235,12 @@ SDL_AppResult SDL_AppIterate(void *appstate)
             hovered_block = &blocks[i];
             SDL_SetRenderDrawColor(renderer, 128, 128, 128, 100);
         }
-        else 
+        else
         {
             blocks[i].m_hovered = false;
             SDL_SetRenderDrawColor(renderer, blocks[i].m_sprite.r, blocks[i].m_sprite.g, blocks[i].m_sprite.b, 0);
-        }   
-        
+        }
+
         SDL_FRect rect = {
             .x = blocks[i].m_position.x,
             .y = blocks[i].m_position.y,
@@ -236,7 +262,5 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 /* This function runs once at shutdown. */
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
-
-
     /* SDL will clean up the window/renderer for us. */
 }
