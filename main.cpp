@@ -1,6 +1,6 @@
-#include <SDL3/SDL_video.h>
 #define SDL_MAIN_USE_CALLBACKS 1  /* use the callbacks instead of main() */
 
+#include <SDL3/SDL_video.h>
 #include <SDL3/SDL_mouse.h>
 #include <SDL3/SDL_stdinc.h>
 #include <SDL3/SDL_timer.h>
@@ -24,6 +24,11 @@
 #include "include/player.h"
 #include "include/block.h"
 
+#define GREEN  {0, 255, 0, 0}
+#define RED    {255, 0, 0, 0}
+#define HOVER  {128, 128, 128, 0}
+#define PURPLE {128, 0, 128, 0}
+
 static constexpr vector2_t BASE_RESOLUTION = {1920, 1080};
 
 static SDL_Window *window = NULL;
@@ -39,11 +44,6 @@ SDL_Texture *grass_tex;
 Block *hovered_block;
 
 static Uint64 last_tick;
-
-#define GREEN  {0, 255, 0, 0}
-#define RED    {255, 0, 0, 0}
-#define HOVER  {128, 128, 128, 0}
-#define PURPLE {128, 0, 128, 0}
 
 static Player player = Player({100.0f, 100.0f}, {32.0f, 32.0f}, RED, PLAYER, 200.0f, true);
 
