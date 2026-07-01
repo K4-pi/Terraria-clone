@@ -4,7 +4,7 @@
 #include "lmath.h"
 #include <SDL3/SDL_render.h>
 
-class Entity 
+class Entity
 {
     protected:
         bool CheckCollisionX(Block *b, float delta);
@@ -20,6 +20,6 @@ class Entity
         bool m_hovered;
 
         Entity(vector2f_t position, vector2f_t size, RGBA_t sprite, int id, bool collision=true, bool hovered=false);
-        void Draw(SDL_Renderer *renderer);
-        
+        void Draw(SDL_Renderer *renderer, vector2f_t cords);
+
 };

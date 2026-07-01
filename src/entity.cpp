@@ -5,7 +5,7 @@
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
 
-Entity::Entity(vector2f_t position, vector2f_t size, RGBA_t sprite, int id, bool collision, bool hovered) 
+Entity::Entity(vector2f_t position, vector2f_t size, RGBA_t sprite, int id, bool collision, bool hovered)
     : m_position  { position }
     , m_size      { size }
     , m_sprite    { sprite }
@@ -15,11 +15,11 @@ Entity::Entity(vector2f_t position, vector2f_t size, RGBA_t sprite, int id, bool
     , m_velocity  { 0.0f, 0.0f }
 {}
 
-void Entity::Draw(SDL_Renderer *renderer)
+void Entity::Draw(SDL_Renderer *renderer, vector2f_t cords)
 {
     SDL_FRect body = {
-        .x = m_position.x,
-        .y = m_position.y,
+        .x = cords.x,
+        .y = cords.y,
         .w = m_size.x,
         .h = m_size.y,
     };
@@ -49,13 +49,13 @@ bool Entity::CheckCollisionY(Block *b, float delta)
 {
     // current collision x
     bool collision_x = m_position.x + m_size.x > b->m_position.x &&
-                       b->m_position.x + b->m_size.x > m_position.x;   
+                       b->m_position.x + b->m_size.x > m_position.x;
 
     // next y
     float next_y = m_position.y + (m_velocity.y * delta);
 
     bool collision_y = next_y + m_size.y > b->m_position.y &&
                        b->m_position.y + b->m_size.y > next_y;
-                       
+
     return collision_y && collision_x;
 }

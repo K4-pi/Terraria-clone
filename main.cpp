@@ -1,3 +1,4 @@
+#include <cstdio>
 #define SDL_MAIN_USE_CALLBACKS 1  /* use the callbacks instead of main() */
 
 #include <SDL3/SDL_video.h>
@@ -47,6 +48,8 @@ static Uint64 last_tick;
 
 static Player player = Player({100.0f, 100.0f}, {32.0f, 32.0f}, RED, PLAYER, 200.0f, true);
 
+vector2f_t Camera = {0, 0};
+
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
@@ -65,6 +68,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
     SDL_SetRenderLogicalPresentation(renderer, BASE_RESOLUTION.x, BASE_RESOLUTION.y, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
+    // Blocks initialization
     int y = 0;
     int x = 0;
     for (int i=0; i < blocks.size(); i++)
@@ -210,8 +214,13 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
     player.MovePlayer(delta_time, blocks);
 
+    Camera.x = player.m_position.x - BASE_RESOLUTION.x * 0.5f;
+    Camera.y = player.m_position.y - BASE_RESOLUTION.y * 0.5f;
+
     // if (player.is_grounded) std::cout << "Player is grounded" << std::endl;
     // else std::cout << "Player is not grounded" << std::endl;
+
+    // std::cout << "Camera = {" << Camera.x << ", " << Camera.y << "}" << std::endl;
 
     // printf("Velocity = %f, %f\n", player.velocity.x, player.velocity.y);
 
@@ -225,33 +234,39 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
     for (size_t i=0; i < blocks.size(); i++)
     {
-        bool hover_x = std::fmax(std::fmin(mouse_position.x, blocks[i].m_position.x + blocks[i].m_size.x), blocks[i].m_position.x) == mouse_position.x;
-        bool hover_y = std::fmax(std::fmin(mouse_position.y, blocks[i].m_position.y + blocks[i].m_size.y), blocks[i].m_position.y) == mouse_position.y;
+        Block current_block = blocks[i];
+
+        bool hover_x = std::fmax(std::fmin(mouse_position.x, current_block.m_position.x + current_block.m_size.x - Camera.x), current_block.m_position.x - Camera.x) == mouse_position.x;
+        bool hover_y = std::fmax(std::fmin(mouse_position.y, current_block.m_position.y + current_block.m_size.y - Camera.y), current_block.m_position.y - Camera.y) == mouse_position.y;
 
         if (hover_x && hover_y)
         {
-            blocks[i].m_hovered = true;
+            current_block.m_hovered = true;
 
-            hovered_block = &blocks[i];
+            hovered_block = &current_block;
             SDL_SetRenderDrawColor(renderer, 128, 128, 128, 100);
         }
         else
         {
-            blocks[i].m_hovered = false;
-            SDL_SetRenderDrawColor(renderer, blocks[i].m_sprite.r, blocks[i].m_sprite.g, blocks[i].m_sprite.b, 0);
+            current_block.m_hovered = false;
+            SDL_SetRenderDrawColor(renderer, current_block.m_sprite.r, current_block.m_sprite.g, current_block.m_sprite.b, 0);
         }
 
-        SDL_FRect rect = {
-            .x = blocks[i].m_position.x,
-            .y = blocks[i].m_position.y,
-            .w = blocks[i].m_size.x,
-            .h = blocks[i].m_size.y,
-        };
+        if (current_block.m_position.x + current_block.m_size.x > Camera.x && current_block.m_position.x < Camera.x + BASE_RESOLUTION.x &&
+            current_block.m_position.y > Camera.y && current_block.m_position.y < Camera.y + BASE_RESOLUTION.y)
+        {
+            SDL_FRect rect = {
+                .x = current_block.m_position.x - Camera.x,
+                .y = current_block.m_position.y - Camera.y,
+                .w = current_block.m_size.x,
+                .h = current_block.m_size.y,
+            };
 
-        SDL_RenderFillRect(renderer, &rect);
+            SDL_RenderFillRect(renderer, &rect);
+        }
     }
 
-    player.Draw(renderer);
+    player.Draw(renderer, {player.m_position.x - Camera.x, player.m_position.y - Camera.y});
 
     /* put the newly-cleared rendering on the screen. */
     SDL_RenderPresent(renderer);
