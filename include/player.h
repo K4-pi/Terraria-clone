@@ -10,7 +10,12 @@
 
 class Player : public Entity
 {
+    protected:
+        bool CheckCollisionX(Block *b, float delta);
+        bool CheckCollisionY(Block *b, float delta);
+
     public:
+        vector2f_t m_velocity;
         vector2_t m_direction;
         bool m_is_grounded;
         float m_max_speed;
@@ -19,7 +24,7 @@ class Player : public Entity
             bool A, D, SPACE;
         } keys_pressed;
 
-        Player(vector2f_t position, vector2f_t size, RGBA_t sprite, int id, float max_speed, bool collision=true, bool hovered=false);
+        Player(vector2f_t position, vector2f_t size, int id, float max_speed, bool collision=true, bool hovered=false);
         void MovePlayer(float delta, std::vector<Block> b);
         void HandleInput();
 };

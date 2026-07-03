@@ -7,8 +7,8 @@
 #include <vector>
 #include <cmath>
 
-Player::Player(vector2f_t position, vector2f_t size, RGBA_t sprite, int id, float max_speed, bool collision, bool hovered)
-    : Entity(position, size, sprite, id, collision, hovered)
+Player::Player(vector2f_t position, vector2f_t size, int id, float max_speed, bool collision, bool hovered)
+    : Entity(position, size, id, collision, hovered)
     , m_direction   { 0, 0 }
     , m_is_grounded { false }
     , m_max_speed   { max_speed }
@@ -109,4 +109,34 @@ void Player::HandleInput()
             m_is_grounded = false;
         }
     }
+}
+
+bool Player::CheckCollisionX(Block *b, float delta)
+{
+    // next x
+    float next_x = m_position.x + (m_velocity.x * delta);
+
+    bool collision_x = next_x + m_size.x > b->m_position.x &&
+                       b->m_position.x + b->m_size.x > next_x;
+
+    // current collision y
+    bool collision_y = m_position.y + m_size.y > b->m_position.y &&
+                       b->m_position.y + b->m_size.y > m_position.y;
+
+    return collision_x && collision_y;
+}
+
+bool Player::CheckCollisionY(Block *b, float delta)
+{
+    // current collision x
+    bool collision_x = m_position.x + m_size.x > b->m_position.x &&
+                       b->m_position.x + b->m_size.x > m_position.x;
+
+    // next y
+    float next_y = m_position.y + (m_velocity.y * delta);
+
+    bool collision_y = next_y + m_size.y > b->m_position.y &&
+                       b->m_position.y + b->m_size.y > next_y;
+
+    return collision_y && collision_x;
 }

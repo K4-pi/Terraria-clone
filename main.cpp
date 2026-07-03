@@ -1,7 +1,6 @@
-#include <algorithm>
-#include <memory>
 #define SDL_MAIN_USE_CALLBACKS 1  /* use the callbacks instead of main() */
 
+#include <SDL3/SDL_init.h>
 #include <SDL3/SDL_surface.h>
 #include <SDL3/SDL_video.h>
 #include <SDL3/SDL_mouse.h>
@@ -23,6 +22,7 @@
 #include <vector>
 #include <cmath>
 
+#include "include/textures.h"
 #include "include/id.h"
 #include "include/lmath.h"
 #include "include/player.h"
@@ -34,7 +34,6 @@
 #define PURPLE {128, 0, 128, 0}
 
 static constexpr vector2_t BASE_RESOLUTION = { 1920, 1080 };
-// static constexpr vector2_t BASE_RESOLUTION = { 1280, 720 };
 
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
@@ -42,21 +41,27 @@ static SDL_Renderer *renderer = NULL;
 static SDL_MouseButtonFlags mouse_buttons;
 static vector2f_t mouse_position;
 
-std::vector<Block> blocks(128 * 128);
-
-SDL_Surface *dirt_surface;
-SDL_Texture *dirt_tex;
-
-SDL_Surface *hover_surface;
-SDL_Texture *hover_tex;
+std::vector<Block> blocks = {
+    Block({50.0f, 120.0f}, {32.0f, 32.0f}, DIRT_BLOCK_ID, true, false),
+    Block({82.0f, 120.0f}, {32.0f, 32.0f}, DIRT_BLOCK_ID, true, false),
+    Block({114.0f, 120.0f}, {32.0f, 32.0f}, DIRT_BLOCK_ID, true, false),
+    Block({146.0f, 120.0f}, {32.0f, 32.0f}, DIRT_BLOCK_ID, true, false)
+};
 
 Block* hovered_block = nullptr;
 
 static Uint64 last_tick;
 
-static Player player = Player({100.0f, 100.0f}, {32.0f, 32.0f}, RED, PLAYER, 200.0f, true);
+static Player player = Player({50.0f, 140.0f}, {32.0f, 64.0f}, PLAYER, 200.0f, true);
 
 vector2f_t Camera = {0, 0};
+
+/* TODO:
+ * Zmienić klasy Entity i Block, rysowanie textur oraz poprawny schemat dla ID bloków
+ * Rysowanie, generowanie świata w world.cpp
+ * Input przenieść do własnej funkcji, nie do player, player otrzymuje co najwyżej wyniki inputów
+ * Jakoś trzeba osadzić kamere żeby wszystko, żeby entitiy miało dostęp do cord kamery
+ */
 
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
@@ -76,29 +81,13 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
     SDL_SetRenderLogicalPresentation(renderer, BASE_RESOLUTION.x, BASE_RESOLUTION.y, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
-    // Blocks initialization
-    int y = 0;
-    int x = 0;
-    for (int i=0; i < blocks.size(); i++)
+    if (LoadTexturesFromFile(renderer, "tilemap.png") == -1)
     {
-        if ((x = i % 128) == 0) y++;
-
-        blocks[i] = Block
-        {
-            {50.0f + x * 32.0f, 100.0f + y * 32.0f},
-            {32.0f, 32.0f},
-            GREEN,
-            GRASS_BLOCK_ID
-        };
+        SDL_Log("Failed to load textures from a file: %s", SDL_GetError());
+        return SDL_APP_FAILURE;
     }
 
     last_tick = SDL_GetTicks();
-
-    dirt_surface = SDL_LoadPNG("Sprites/dirt.png");
-    dirt_tex     = SDL_CreateTextureFromSurface(renderer, dirt_surface);
-
-    hover_surface = SDL_LoadPNG("Sprites/hover.png");
-    hover_tex     = SDL_CreateTextureFromSurface(renderer, hover_surface);
 
     return SDL_APP_CONTINUE;  // Continue
 }
@@ -216,7 +205,6 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     SDL_RenderClear(renderer);
 
     // Draw here
-
     for (size_t i=0; i < blocks.size(); i++)
     {
         Block *current_block = &blocks[i];
@@ -235,27 +223,18 @@ SDL_AppResult SDL_AppIterate(void *appstate)
             current_block->m_hovered = false;
         }
 
-        SDL_FRect rect = {
-            .x = current_block->m_position.x - Camera.x,
-            .y = current_block->m_position.y - Camera.y,
-            .w = current_block->m_size.x,
-            .h = current_block->m_size.y,
-        };
-
         if (current_block->m_position.x + current_block->m_size.x > Camera.x &&
             current_block->m_position.x < Camera.x + BASE_RESOLUTION.x &&
             current_block->m_position.y > Camera.y &&
-            current_block->m_position.y < Camera.y + BASE_RESOLUTION.y && current_block->m_id == GRASS_BLOCK_ID)
+            current_block->m_position.y < Camera.y + BASE_RESOLUTION.y)
         {
-            // SDL_RenderFillRect(renderer, &rect);
-
-            SDL_RenderTexture(renderer, dirt_tex, nullptr, &rect);
+            current_block->Draw(renderer, {current_block->m_position.x - Camera.x, current_block->m_position.y - Camera.y});
         }
 
-        if (current_block->m_hovered)
-        {
-            SDL_RenderTexture(renderer, hover_tex, nullptr, &rect);
-        }
+        // if (current_block->m_hovered)
+        // {
+        //     SDL_RenderTexture(renderer, hover_tex, nullptr, &rect);
+        // }
     }
 
     player.Draw(renderer, {player.m_position.x - Camera.x, player.m_position.y - Camera.y});
@@ -269,7 +248,6 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 /* This function runs once at shutdown. */
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
-    SDL_DestroySurface(dirt_surface);
-    SDL_DestroyTexture(dirt_tex);
+    DeleteTextures();
     /* SDL will clean up the window/renderer for us. */
 }
