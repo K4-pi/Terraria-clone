@@ -1,6 +1,8 @@
-#include <cstdio>
+#include <algorithm>
+#include <memory>
 #define SDL_MAIN_USE_CALLBACKS 1  /* use the callbacks instead of main() */
 
+#include <SDL3/SDL_surface.h>
 #include <SDL3/SDL_video.h>
 #include <SDL3/SDL_mouse.h>
 #include <SDL3/SDL_stdinc.h>
@@ -14,6 +16,7 @@
 #include <SDL3/SDL_main.h>
 #include <SDL3_image/SDL_image.h>
 
+#include <cstdio>
 #include <cstddef>
 #include <cstdlib>
 #include <iostream>
@@ -30,7 +33,8 @@
 #define HOVER  {128, 128, 128, 0}
 #define PURPLE {128, 0, 128, 0}
 
-static constexpr vector2_t BASE_RESOLUTION = {1920, 1080};
+static constexpr vector2_t BASE_RESOLUTION = { 1920, 1080 };
+// static constexpr vector2_t BASE_RESOLUTION = { 1280, 720 };
 
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
@@ -40,9 +44,13 @@ static vector2f_t mouse_position;
 
 std::vector<Block> blocks(128 * 128);
 
-SDL_Texture *grass_tex;
+SDL_Surface *dirt_surface;
+SDL_Texture *dirt_tex;
 
-Block *hovered_block;
+SDL_Surface *hover_surface;
+SDL_Texture *hover_tex;
+
+Block* hovered_block = nullptr;
 
 static Uint64 last_tick;
 
@@ -75,32 +83,22 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     {
         if ((x = i % 128) == 0) y++;
 
-        if (y < 8)
+        blocks[i] = Block
         {
-            blocks[i] = Block
-            {
-                {50.0f + x * 32.0f, 100.0f + y * 32.0f},
-                {32.0f, 32.0f}, {0, 128, 196, 0},
-                SKY_BLOCK_ID,
-                false,
-                false
-            };
-        }
-        else
-        {
-            blocks[i] = Block
-            {
-                {50.0f + x * 32.0f, 100.0f + y * 32.0f},
-                {32.0f, 32.0f},
-                GREEN,
-                GRASS_BLOCK_ID
-            };
-        }
+            {50.0f + x * 32.0f, 100.0f + y * 32.0f},
+            {32.0f, 32.0f},
+            GREEN,
+            GRASS_BLOCK_ID
+        };
     }
 
-    hovered_block = &blocks[16 * 16];
-
     last_tick = SDL_GetTicks();
+
+    dirt_surface = SDL_LoadPNG("Sprites/dirt.png");
+    dirt_tex     = SDL_CreateTextureFromSurface(renderer, dirt_surface);
+
+    hover_surface = SDL_LoadPNG("Sprites/hover.png");
+    hover_tex     = SDL_CreateTextureFromSurface(renderer, hover_surface);
 
     return SDL_APP_CONTINUE;  // Continue
 }
@@ -123,27 +121,25 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
             std::cout << "left mouse pressed" << std::endl;
 
             if (hovered_block != nullptr)
-                *hovered_block = Block
-                {
-                    {hovered_block->m_position.x, hovered_block->m_position.y},
-                    {32.0f, 32.0f}, {0, 128, 196, 0},
-                    SKY_BLOCK_ID,
-                    false,
-                    false
-                };
+            {
+                std::cout << "Hovered block = " << hovered_block << std::endl;
+
+                hovered_block->m_id = SKY_BLOCK_ID;
+                hovered_block->m_collision = false;
+            }
+
         }
         if (mouse_buttons & SDL_BUTTON_RMASK)
         {
             std::cout << "right mouse pressed" << std::endl;
 
-            if (hovered_block->m_id == SKY_BLOCK_ID)
-                *hovered_block = Block
-                {
-                    {hovered_block->m_position.x, hovered_block->m_position.y},
-                    {32.0f, 32.0f},
-                    PURPLE,
-                    GRASS_BLOCK_ID
-                };
+            if (hovered_block != nullptr)
+            {
+                std::cout << "Hovered block = " << hovered_block << std::endl;
+
+                hovered_block->m_id = GRASS_BLOCK_ID;
+                hovered_block->m_collision = true;
+            }
         }
     }
 
@@ -210,19 +206,10 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     float delta_time = (current_tick - last_tick) / 1000.0f;
     last_tick = current_tick;
 
-    // std::cout << "Mouse postion = " << mouse_position.x << ", " << mouse_position.y << std::endl;
-
     player.MovePlayer(delta_time, blocks);
 
     Camera.x = player.m_position.x - BASE_RESOLUTION.x * 0.5f;
     Camera.y = player.m_position.y - BASE_RESOLUTION.y * 0.5f;
-
-    // if (player.is_grounded) std::cout << "Player is grounded" << std::endl;
-    // else std::cout << "Player is not grounded" << std::endl;
-
-    // std::cout << "Camera = {" << Camera.x << ", " << Camera.y << "}" << std::endl;
-
-    // printf("Velocity = %f, %f\n", player.velocity.x, player.velocity.y);
 
     // Clear screen
     SDL_SetRenderDrawColor(renderer, 0, 128, 196, 0);
@@ -230,39 +217,44 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
     // Draw here
 
-    // dont redraw everytime, only when player changes blocks
-
     for (size_t i=0; i < blocks.size(); i++)
     {
-        Block current_block = blocks[i];
+        Block *current_block = &blocks[i];
 
-        bool hover_x = std::fmax(std::fmin(mouse_position.x, current_block.m_position.x + current_block.m_size.x - Camera.x), current_block.m_position.x - Camera.x) == mouse_position.x;
-        bool hover_y = std::fmax(std::fmin(mouse_position.y, current_block.m_position.y + current_block.m_size.y - Camera.y), current_block.m_position.y - Camera.y) == mouse_position.y;
+        bool hover_x = std::fmax(std::fmin(mouse_position.x, current_block->m_position.x + current_block->m_size.x - Camera.x), current_block->m_position.x - Camera.x) == mouse_position.x;
+        bool hover_y = std::fmax(std::fmin(mouse_position.y, current_block->m_position.y + current_block->m_size.y - Camera.y), current_block->m_position.y - Camera.y) == mouse_position.y;
 
         if (hover_x && hover_y)
         {
-            current_block.m_hovered = true;
+            current_block->m_hovered = true;
 
-            hovered_block = &current_block;
-            SDL_SetRenderDrawColor(renderer, 128, 128, 128, 100);
+            hovered_block = current_block;
         }
         else
         {
-            current_block.m_hovered = false;
-            SDL_SetRenderDrawColor(renderer, current_block.m_sprite.r, current_block.m_sprite.g, current_block.m_sprite.b, 0);
+            current_block->m_hovered = false;
         }
 
-        if (current_block.m_position.x + current_block.m_size.x > Camera.x && current_block.m_position.x < Camera.x + BASE_RESOLUTION.x &&
-            current_block.m_position.y > Camera.y && current_block.m_position.y < Camera.y + BASE_RESOLUTION.y)
-        {
-            SDL_FRect rect = {
-                .x = current_block.m_position.x - Camera.x,
-                .y = current_block.m_position.y - Camera.y,
-                .w = current_block.m_size.x,
-                .h = current_block.m_size.y,
-            };
+        SDL_FRect rect = {
+            .x = current_block->m_position.x - Camera.x,
+            .y = current_block->m_position.y - Camera.y,
+            .w = current_block->m_size.x,
+            .h = current_block->m_size.y,
+        };
 
-            SDL_RenderFillRect(renderer, &rect);
+        if (current_block->m_position.x + current_block->m_size.x > Camera.x &&
+            current_block->m_position.x < Camera.x + BASE_RESOLUTION.x &&
+            current_block->m_position.y > Camera.y &&
+            current_block->m_position.y < Camera.y + BASE_RESOLUTION.y && current_block->m_id == GRASS_BLOCK_ID)
+        {
+            // SDL_RenderFillRect(renderer, &rect);
+
+            SDL_RenderTexture(renderer, dirt_tex, nullptr, &rect);
+        }
+
+        if (current_block->m_hovered)
+        {
+            SDL_RenderTexture(renderer, hover_tex, nullptr, &rect);
         }
     }
 
@@ -277,5 +269,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 /* This function runs once at shutdown. */
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
+    SDL_DestroySurface(dirt_surface);
+    SDL_DestroyTexture(dirt_tex);
     /* SDL will clean up the window/renderer for us. */
 }

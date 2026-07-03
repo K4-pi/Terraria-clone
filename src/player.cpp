@@ -24,7 +24,7 @@ void Player::MovePlayer(float delta, std::vector<Block> b)
     {
         m_velocity.x += m_direction.x * acceleration * 500.0f * delta;
     }
-    else 
+    else
     {
         if (m_velocity.x > 0.0)
         {
@@ -82,7 +82,7 @@ void Player::MovePlayer(float delta, std::vector<Block> b)
             m_velocity.y = 0;
             break;
         }
-    } 
+    }
     m_position.y += m_velocity.y * delta;
 }
 
@@ -96,7 +96,7 @@ void Player::HandleInput()
     {
         m_direction.x = 1;
     }
-    else 
+    else
     {
         m_direction.x = 0;
     }

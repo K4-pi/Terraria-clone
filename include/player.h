@@ -8,7 +8,7 @@
 #include "entity.h"
 #include "lmath.h"
 
-class Player : public Entity 
+class Player : public Entity
 {
     public:
         vector2_t m_direction;

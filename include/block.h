@@ -1,10 +1,10 @@
 #pragma once
 
 #include <string>
-
 #include "lmath.h"
 
-class Block {
+class Block
+{
     public:
         vector2f_t m_position;
         vector2f_t m_size;
