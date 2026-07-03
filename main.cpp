@@ -56,13 +56,6 @@ static Player player = Player({50.0f, 140.0f}, {32.0f, 64.0f}, PLAYER, 200.0f, t
 
 vector2f_t Camera = {0, 0};
 
-/* TODO:
- * Zmienić klasy Entity i Block, rysowanie textur oraz poprawny schemat dla ID bloków
- * Rysowanie, generowanie świata w world.cpp
- * Input przenieść do własnej funkcji, nie do player, player otrzymuje co najwyżej wyniki inputów
- * Jakoś trzeba osadzić kamere żeby wszystko, żeby entitiy miało dostęp do cord kamery
- */
-
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
