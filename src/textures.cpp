@@ -5,9 +5,7 @@
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_surface.h>
 #include <SDL3/SDL_render.h>
-#include <cerrno>
 #include <cstddef>
-#include <locale>
 #include <map>
 
 SDL_Texture *TEXTURES_TILEMAP;

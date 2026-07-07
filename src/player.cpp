@@ -12,7 +12,6 @@ Player::Player(vector2f_t position, vector2f_t size, int id, float max_speed, bo
     , m_direction   { 0, 0 }
     , m_is_grounded { false }
     , m_max_speed   { max_speed }
-    , keys_pressed  { false }
 {}
 
 void Player::MovePlayer(float delta, std::vector<Block> b)
@@ -86,13 +85,13 @@ void Player::MovePlayer(float delta, std::vector<Block> b)
     m_position.y += m_velocity.y * delta;
 }
 
-void Player::HandleInput()
+void Player::HandleInput(const InputState& input_state)
 {
-    if (keys_pressed.A && !keys_pressed.D)
+    if (input_state.move_left && !input_state.move_right)
     {
         m_direction.x = -1;
     }
-    else if (!keys_pressed.A && keys_pressed.D)
+    else if (!input_state.move_left && input_state.move_right)
     {
         m_direction.x = 1;
     }
@@ -101,7 +100,7 @@ void Player::HandleInput()
         m_direction.x = 0;
     }
 
-    if (keys_pressed.SPACE)
+    if (input_state.jump)
     {
         if (m_is_grounded && m_velocity.y == 0.0f)
         {

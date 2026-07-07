@@ -6,6 +6,7 @@
 #include "block.h"
 
 #include "entity.h"
+#include "input_state.h"
 #include "lmath.h"
 
 class Player : public Entity
@@ -20,11 +21,7 @@ class Player : public Entity
         bool m_is_grounded;
         float m_max_speed;
 
-        struct {
-            bool A, D, SPACE;
-        } keys_pressed;
-
         Player(vector2f_t position, vector2f_t size, int id, float max_speed, bool collision=true, bool hovered=false);
         void MovePlayer(float delta, std::vector<Block> b);
-        void HandleInput();
+        void HandleInput(const InputState& input_state);
 };

@@ -16,6 +16,5 @@ class Entity
         bool m_hovered;
 
         Entity(vector2f_t position, vector2f_t size, int id, bool collision=true, bool hovered=false);
-        void Draw(SDL_Renderer *renderer, vector2f_t position);
-
+        void Draw(SDL_Renderer *renderer);
 };

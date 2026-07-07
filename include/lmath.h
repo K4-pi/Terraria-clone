@@ -11,7 +11,3 @@ typedef struct {
 typedef struct {
     float x, y, w, h;
 } vector4f_t;  // Used for one place store of texture position in file
-
-typedef struct {
-    int r, g, b, a;
-} RGBA_t;
