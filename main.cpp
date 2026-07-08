@@ -54,7 +54,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
-    SDL_SetRenderLogicalPresentation(renderer, GameContext::BASE_RESOLUTION.x, GameContext::BASE_RESOLUTION.y, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+    SDL_SetRenderLogicalPresentation(renderer, GameContext::BASE_RESOLUTION.x, GameContext::BASE_RESOLUTION.y, SDL_LOGICAL_PRESENTATION_OVERSCAN);
 
     if (LoadTexturesFromFile(renderer, "tilemap.png") == -1)
     {
