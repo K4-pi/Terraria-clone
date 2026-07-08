@@ -22,22 +22,68 @@ Block* World::GetHoveredBlock()
 
 void World::GenerateFlatWorld()
 {
-    m_blocks = {
-        Block({50.0f, 120.0f},  {32.0f, 32.0f}, DIRT_BLOCK_ID, true, false),
-        Block({114.0f - 32, 120.0f}, {32.0f, 32.0f}, DIRT_BLOCK_ID, true, false),
-        Block({178.0f - 64, 120.0f}, {32.0f, 32.0f}, DIRT_BLOCK_ID, true, false),
-        Block({242.0f - 96, 120.0f}, {32.0f, 32.0f}, DIRT_BLOCK_ID, true, false)
-    };
+    m_blocks.clear();
+
+    const int mapWidth = 316;
+    const int mapHeight = 316;
+    const float blockSize = 16.0f;
+
+    m_blocks.reserve(mapWidth * (mapHeight / 2));
+
+    const int baseGroundLevel = 156;
+
+    for (int col = 0; col < mapWidth; ++col)
+    {
+        float detailWave = std::sin(col * 0.15f) * 4.0f;   // Small, frequent bumps
+        float rollingWave = std::sin(col * 0.04f) * 15.0f; // Large, sweeping hills
+
+        // Determine the actual surface row for this specific column
+        int surfaceRow = baseGroundLevel + static_cast<int>(detailWave + rollingWave);
+
+        for (int row = 0; row < mapHeight; ++row)
+        {
+            float xPos = col * blockSize;
+            float yPos = row * blockSize;
+
+            if (row >= surfaceRow)
+            {
+                int blockType = (row == surfaceRow) ? GRASS_BLOCK_ID : DIRT_BLOCK_ID;
+
+                m_blocks.push_back(Block(
+                    {xPos, yPos},
+                    {blockSize, blockSize},
+                    blockType,
+                    true,
+                    false
+                ));
+            }
+            else
+            {
+                m_blocks.push_back(Block(
+                    {xPos, yPos},
+                    {blockSize, blockSize},
+                    SKY_BLOCK_ID,
+                    false,
+                    false
+                ));
+            }
+        }
+    }
 }
 
 void World::UpdateHoveredBlock(vector2f_t mouse_position)
 {
     m_hovered_block = nullptr;
 
+    vector2f_t real_position = {
+        mouse_position.x / GameContext::camera_zoom,
+        mouse_position.y / GameContext::camera_zoom
+    };
+
     for (Block &current_block : m_blocks)
     {
-        bool hover_x = std::fmax(std::fmin(mouse_position.x, current_block.m_position.x + current_block.m_size.x - GameContext::camera.x), current_block.m_position.x - GameContext::camera.x) == mouse_position.x;
-        bool hover_y = std::fmax(std::fmin(mouse_position.y, current_block.m_position.y + current_block.m_size.y - GameContext::camera.y), current_block.m_position.y - GameContext::camera.y) == mouse_position.y;
+        bool hover_x = std::fmax(std::fmin(real_position.x, current_block.m_position.x + current_block.m_size.x - GameContext::camera.x), current_block.m_position.x - GameContext::camera.x) == real_position.x;
+        bool hover_y = std::fmax(std::fmin(real_position.y, current_block.m_position.y + current_block.m_size.y - GameContext::camera.y), current_block.m_position.y - GameContext::camera.y) == real_position.y;
 
         current_block.m_hovered = hover_x && hover_y;
 

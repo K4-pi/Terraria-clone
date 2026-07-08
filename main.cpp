@@ -35,7 +35,7 @@ static Uint64 last_tick;
 
 static vector2f_t mouse_position;
 
-static Player player = Player({50.0f, 140.0f}, {48.0f, 128.0f}, PLAYER, 200.0f, true);
+static Player player = Player({120.0f * 16.0f, 157.0f * 16.0f}, {16.0f, 16.0f}, PLAYER, 200.0f, true);
 static World world = World();
 
 /* This function runs once at startup. */

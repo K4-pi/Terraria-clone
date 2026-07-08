@@ -6,6 +6,7 @@ namespace GameContext
 {
     extern vector2_t BASE_RESOLUTION;
     extern vector2f_t camera;
+    extern float camera_zoom;
 
     void UpdateCameraPosition(vector2f_t position);
 }

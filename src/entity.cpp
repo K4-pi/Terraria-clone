@@ -33,10 +33,10 @@ void Entity::Draw(SDL_Renderer *renderer)
     };
 
     SDL_FRect desc_rect = {
-        .x = m_position.x - GameContext::camera.x,
-        .y = m_position.y - GameContext::camera.y,
-        .w = m_size.x,
-        .h = m_size.y,
+        .x = (m_position.x - GameContext::camera.x) * GameContext::camera_zoom,
+        .y = (m_position.y - GameContext::camera.y) * GameContext::camera_zoom,
+        .w = m_size.x * GameContext::camera_zoom,
+        .h = m_size.y * GameContext::camera_zoom,
     };
 
     SDL_RenderTexture(renderer, TEXTURES_TILEMAP, &src_rect, &desc_rect);
