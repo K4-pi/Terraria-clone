@@ -26,7 +26,6 @@ void World::GenerateFlatWorld()
 
     const int mapWidth = GameContext::world_size.x;
     const int mapHeight = GameContext::world_size.y;
-    const float blockSize = 16.0f;
 
     m_blocks.reserve(mapWidth * mapHeight);
 
@@ -42,8 +41,8 @@ void World::GenerateFlatWorld()
 
         for (int row = 0; row < mapHeight; ++row)
         {
-            float xPos = col * blockSize;
-            float yPos = row * blockSize;
+            float xPos = col * GameContext::STANDARD_BLOCK_SIZE;
+            float yPos = row * GameContext::STANDARD_BLOCK_SIZE;
 
             if (row >= surfaceRow)
             {
@@ -51,7 +50,7 @@ void World::GenerateFlatWorld()
 
                 m_blocks.push_back(Block(
                     {xPos, yPos},
-                    {blockSize, blockSize},
+                    {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
                     blockType,
                     true,
                     false
@@ -61,7 +60,7 @@ void World::GenerateFlatWorld()
             {
                 m_blocks.push_back(Block(
                     {xPos, yPos},
-                    {blockSize, blockSize},
+                    {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
                     SKY_BLOCK_ID,
                     false,
                     false

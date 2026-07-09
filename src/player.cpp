@@ -4,6 +4,8 @@
 #include "../include/player.h"
 #include "../include/block.h"
 
+#include "../include/game_context.h"
+
 #include <vector>
 #include <cmath>
 
@@ -21,7 +23,13 @@ void Player::MovePlayer(float delta, std::vector<Block> b)
 
     if (m_direction.x != 0)
     {
-        m_velocity.x += m_direction.x * acceleration * 500.0f * delta;
+        float world_edge = GameContext::world_size.x * GameContext::STANDARD_BLOCK_SIZE - m_size.x / GameContext::camera_zoom;
+
+        if ((m_position.x <= 0 && m_direction.x == -1) || (m_position.x >= world_edge && m_direction.x == 1))
+        {
+            m_velocity.x = 0.0f;
+        }
+        else m_velocity.x += m_direction.x * acceleration * 500.0f * delta;
     }
     else
     {

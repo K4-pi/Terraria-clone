@@ -3,8 +3,8 @@
 namespace GameContext
 {
     vector2_t BASE_RESOLUTION = { 1920, 1080 };
-    vector2f_t camera = { 0.0f, 0.0f };
     vector2_t world_size = { 316, 316 };
+    vector2f_t camera = { 0.0f, 0.0f };
 
     float camera_zoom = 2.0f;
 
@@ -13,8 +13,8 @@ namespace GameContext
         float pos_x = (position.x - BASE_RESOLUTION.x * 0.5f / camera_zoom);
         float pos_y = (position.y - BASE_RESOLUTION.y * 0.5f / camera_zoom);
 
-        float map_edge = world_size.x * 16.0f;
-        float map_bottom = world_size.y * 16.0f;
+        float map_edge = world_size.x * STANDARD_BLOCK_SIZE;
+        float map_bottom = world_size.y * STANDARD_BLOCK_SIZE;
 
         vector2f_t world_viewport = {
             BASE_RESOLUTION.x / camera_zoom,
