@@ -24,11 +24,11 @@ void World::GenerateFlatWorld()
 {
     m_blocks.clear();
 
-    const int mapWidth = 316;
-    const int mapHeight = 316;
+    const int mapWidth = GameContext::world_size.x;
+    const int mapHeight = GameContext::world_size.y;
     const float blockSize = 16.0f;
 
-    m_blocks.reserve(mapWidth * (mapHeight / 2));
+    m_blocks.reserve(mapWidth * mapHeight);
 
     const int baseGroundLevel = 156;
 

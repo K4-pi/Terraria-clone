@@ -4,11 +4,7 @@
 
 namespace Input
 {
-    InputState state = {
-        false, false, false,
-        false, false,
-        false, false
-    };
+    InputState state = { false };
 
     void HandleEvent(const SDL_Event& event)
     {
@@ -19,6 +15,8 @@ namespace Input
                 case SDLK_A: state.move_left = true; break;
                 case SDLK_D: state.move_right = true; break;
                 case SDLK_SPACE: state.jump = true; break;
+                case SDLK_1: state.number_1 = true; break;
+                case SDLK_2: state.number_2 = true; break;
                 default: break;
             }
         }
@@ -29,6 +27,8 @@ namespace Input
                 case SDLK_A: state.move_left = false; break;
                 case SDLK_D: state.move_right = false; break;
                 case SDLK_SPACE: state.jump = false; break;
+                case SDLK_1: state.number_1 = false; break;
+                case SDLK_2: state.number_2 = false; break;
                 default: break;
             }
         }

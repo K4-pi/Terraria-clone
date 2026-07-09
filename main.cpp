@@ -35,13 +35,13 @@ static Uint64 last_tick;
 
 static vector2f_t mouse_position;
 
-static Player player = Player({120.0f * 16.0f, 157.0f * 16.0f}, {16.0f, 16.0f}, PLAYER, 200.0f, true);
+static Player player = Player({120.0f * 16.0f, 157.0f * 16.0f}, {30.0f, 45.0f}, PLAYER, 200.0f, true);
 static World world = World();
 
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
-    SDL_SetAppMetadata("Example Renderer Clear", "1.0", "com.example.renderer-clear");
+    SDL_SetAppMetadata("Game", "1.0", "com.example.game");
 
     if (!SDL_Init(SDL_INIT_VIDEO))
     {
@@ -49,7 +49,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         return SDL_APP_FAILURE;
     }
 
-    if (!SDL_CreateWindowAndRenderer("examples/renderer/clear", GameContext::BASE_RESOLUTION.x, GameContext::BASE_RESOLUTION.y, SDL_WINDOW_RESIZABLE, &window, &renderer))
+    if (!SDL_CreateWindowAndRenderer("survival game", GameContext::BASE_RESOLUTION.x, GameContext::BASE_RESOLUTION.y, SDL_WINDOW_RESIZABLE, &window, &renderer))
     {
         SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
         return SDL_APP_FAILURE;
@@ -82,6 +82,17 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 
     player.HandleInput(Input::state);
 
+    if (Input::state.number_1 && GameContext::camera_zoom < 5.0f)
+    {
+        GameContext::camera_zoom += 1.0f;
+        Input::state.number_1 = false;
+    }
+    if (Input::state.number_2 && GameContext::camera_zoom > 1.0f)
+    {
+        GameContext::camera_zoom -= 1.0f;
+        Input::state.number_2 = false;
+    }
+
     return SDL_APP_CONTINUE;  /* carry on with the program! */
 }
 
@@ -98,7 +109,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     GameContext::UpdateCameraPosition(player.m_position);
 
     // Clear screen
-    SDL_SetRenderDrawColor(renderer, 0, 128, 196, 0);
+    SDL_SetRenderDrawColor(renderer, 36, 137, 199, 0);
     SDL_RenderClear(renderer);
 
     // Draw here

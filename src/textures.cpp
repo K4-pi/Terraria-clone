@@ -1,5 +1,6 @@
 #include "../include/textures.h"
 #include "../include/lmath.h"
+#include "../include/id.h"
 
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_rect.h>
@@ -24,10 +25,11 @@ int LoadTexturesFromFile(SDL_Renderer *renderer, const char *file)
 
     SDL_SetTextureScaleMode(TEXTURES_TILEMAP, SDL_SCALEMODE_NEAREST);
 
-    id_to_texture_dict[1] = {0, 32, 16, 16};  // Player
-    id_to_texture_dict[2] = {0,  0, 16, 16};  // Dirt block
-    id_to_texture_dict[3] = {16, 0, 16, 16};  // Grass Block
-    id_to_texture_dict[6] = {0, 16, 16, 16};  // hover
+    id_to_texture_dict[1] = {0, 80, 30, 45};  // Player
+    id_to_texture_dict[DIRT_BLOCK_ID] = {0,  0, 16, 16};  // Dirt block
+    id_to_texture_dict[GRASS_BLOCK_ID] = {16, 0, 16, 16};  // Grass Block
+    id_to_texture_dict[SKY_BLOCK_ID] = {16, 16, 16, 16};
+    id_to_texture_dict[HOVER_BLOCK_ID] = {0, 16, 16, 16};  // hover
 
     return 0;
 }
