@@ -23,7 +23,7 @@ int LoadTexturesFromFile(SDL_Renderer *renderer, const char *file)
 
     if (TEXTURES_TILEMAP == NULL) return -1;
 
-    SDL_SetTextureScaleMode(TEXTURES_TILEMAP, SDL_SCALEMODE_NEAREST);
+    if (!SDL_SetTextureScaleMode(TEXTURES_TILEMAP, SDL_SCALEMODE_NEAREST)) return -1;
 
     id_to_texture_dict[1] = {0, 80, 30, 45};  // Player
     id_to_texture_dict[DIRT_BLOCK_ID] = {0,  0, 16, 16};  // Dirt block
