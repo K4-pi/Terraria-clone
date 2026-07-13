@@ -45,13 +45,11 @@ void Entity::Draw(SDL_Renderer *renderer, SDL_FlipMode flip, float angle)
         .h = m_size.y * GameContext::camera_zoom,
     };
 
-    SDL_RenderTextureRotated(renderer, TEXTURES_TILEMAP, &src_rect, &dest_rect, angle, NULL, flip);
-
-    // if (!SDL_RenderTexture(renderer, TEXTURES_TILEMAP, &src_rect, &dest_rect))
-    // {
-    //     SDL_Log("Failed to draw Entity: %s", SDL_GetError());
-    //     exit(EXIT_FAILURE);
-    // }
+    if (!SDL_RenderTextureRotated(renderer, TEXTURES_TILEMAP, &src_rect, &dest_rect, angle, NULL, flip))
+    {
+        SDL_Log("Failed to draw Entity: %s", SDL_GetError());
+        exit(EXIT_FAILURE);
+    }
 }
 
 vector2f_t Entity::GetLocalPosition()

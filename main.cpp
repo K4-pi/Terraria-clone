@@ -128,7 +128,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     world.DrawWorld(renderer);
 
     // Draw player in looking direction
-    if (player.GetLocalPosition().x + 32.0f > mouse_position.x) player.Draw(renderer, SDL_FLIP_NONE);
+    if (player.GetLocalPosition().x > mouse_position.x) player.Draw(renderer, SDL_FLIP_NONE);
     else player.Draw(renderer, SDL_FLIP_HORIZONTAL);
 
     /* put the newly-cleared rendering on the screen. */
