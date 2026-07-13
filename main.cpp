@@ -115,15 +115,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     // Draw here
     world.UpdateHoveredBlock(mouse_position);
 
-    if (Input::state.mouse_left_clicked)
-    {
-        world.SetHoveredBlock(SKY_BLOCK_ID, false);  // Destroy block
-    }
-
-    if (Input::state.mouse_right_clicked)
-    {
-        world.SetHoveredBlock(GRASS_BLOCK_ID, true);  // Place block
-    }
+    player.ModifyWorldBlocks(&world, delta_time);
 
     world.DrawWorld(renderer);
 

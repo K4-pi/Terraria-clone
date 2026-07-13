@@ -3,6 +3,9 @@
 
 #include "../include/player.h"
 #include "../include/block.h"
+#include "../include/world.h"
+#include "../include/id.h"
+#include "../include/input.h"
 
 #include "../include/game_context.h"
 
@@ -146,4 +149,21 @@ bool Player::CheckCollisionY(Block *b, float delta)
                        b->m_position.y + b->m_size.y > next_y;
 
     return collision_y && collision_x;
+}
+
+void Player::ModifyWorldBlocks(World *world, float delta)
+{
+    Block *hovered_block = world->GetHoveredBlock();
+
+    if (CheckCollisionX(hovered_block, delta) && CheckCollisionY(hovered_block, delta)) return;
+
+    if (Input::state.mouse_left_clicked)
+    {
+        world->SetHoveredBlock(SKY_BLOCK_ID, false); // Destroy
+    }
+
+    if (Input::state.mouse_right_clicked)
+    {
+        world->SetHoveredBlock(GRASS_BLOCK_ID, true); // Place
+    }
 }

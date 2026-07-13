@@ -20,6 +20,6 @@ class World
 
         void GenerateFlatWorld();
         void UpdateHoveredBlock(vector2f_t mouse_position);
-        void SetHoveredBlock(int id, bool collision);
         void DrawWorld(SDL_Renderer* renderer);
+        void SetHoveredBlock(int id, bool collision);
 };
