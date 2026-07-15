@@ -4,13 +4,13 @@
 #include <vector>
 
 #include "block.h"
-
+#include "animation.h"
 #include "world.h"
 #include "entity.h"
 #include "input_state.h"
 #include "lmath.h"
 
-class Player : public Entity
+class Player : public AnimatedSprite
 {
     protected:
         bool CheckCollisionX(Block *b, float delta);
@@ -25,5 +25,5 @@ class Player : public Entity
         Player(vector2f_t position, vector2f_t size, int id, float max_speed, bool collision=true, bool hovered=false);
         void MovePlayer(float delta, std::vector<Block> b);
         void HandleInput(const InputState& input_state);
-        void ModifyWorldBlocks(World *world, float delta);
+        void ModifyHoverBlock(Block *hovered_block, float delta);
 };

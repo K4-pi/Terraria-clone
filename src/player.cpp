@@ -13,7 +13,7 @@
 #include <cmath>
 
 Player::Player(vector2f_t position, vector2f_t size, int id, float max_speed, bool collision, bool hovered)
-    : Entity(position, size, id, collision, hovered)
+    : AnimatedSprite(position, size, id, collision, hovered)
     , m_direction   { 0, 0 }
     , m_is_grounded { false }
     , m_max_speed   { max_speed }
@@ -151,19 +151,19 @@ bool Player::CheckCollisionY(Block *b, float delta)
     return collision_y && collision_x;
 }
 
-void Player::ModifyWorldBlocks(World *world, float delta)
+void Player::ModifyHoverBlock(Block *hovered_block, float delta)
 {
-    Block *hovered_block = world->GetHoveredBlock();
-
     if (CheckCollisionX(hovered_block, delta) && CheckCollisionY(hovered_block, delta)) return;
 
     if (Input::state.mouse_left_clicked)
     {
-        world->SetHoveredBlock(SKY_BLOCK_ID, false); // Destroy
+        hovered_block->m_id = SKY_BLOCK_ID;
+        hovered_block->m_collision = false;
     }
 
     if (Input::state.mouse_right_clicked)
     {
-        world->SetHoveredBlock(GRASS_BLOCK_ID, true); // Place
+        hovered_block->m_id = GRASS_BLOCK_ID;
+        hovered_block->m_collision = true;
     }
 }

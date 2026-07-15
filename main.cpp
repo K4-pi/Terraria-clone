@@ -20,6 +20,7 @@
 #include <cstdlib>
 #include <vector>
 
+#include "include/gui.h"
 #include "include/textures.h"
 #include "include/id.h"
 #include "include/lmath.h"
@@ -27,9 +28,12 @@
 #include "include/world.h"
 #include "include/game_context.h"
 #include "include/input.h"
+#include "include/animation.h"
 
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
+
+static bool is_window_fullscreen = false;
 
 static Uint64 last_tick;
 
@@ -37,6 +41,10 @@ static vector2f_t mouse_position;
 
 static Player player = Player({120.0f * 16.0f, 157.0f * 16.0f}, {30.0f, 45.0f}, PLAYER, 200.0f, true);
 static World world = World();
+
+static Animation_t anim_player_idle;
+static Animation_t anim_player_walk;
+static Animation_t anim_player_jump;
 
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
@@ -64,6 +72,24 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     last_tick = SDL_GetTicks();
 
+    anim_player_idle = {
+        .frames = animation_dict["player_idle"],
+        .duration = 0.5f,
+        .frame_count = 2,
+    };
+
+    anim_player_walk = {
+        .frames = animation_dict["player_walk"],
+        .duration = 0.25f,
+        .frame_count = 2,
+    };
+
+    anim_player_jump = {
+        .frames = animation_dict["player_jump"],
+        .duration = 1.0f,
+        .frame_count = 2,
+    };
+
     return SDL_APP_CONTINUE;  // Continue
 }
 
@@ -82,6 +108,13 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 
     player.HandleInput(Input::state);
 
+    if (Input::state.f11)
+    {
+        is_window_fullscreen = is_window_fullscreen ? false : true;
+
+        SDL_SetWindowFullscreen(window, is_window_fullscreen);
+        Input::state.f11 = false;
+    }
     if (Input::state.number_1 && GameContext::camera_zoom < 5.0f)
     {
         GameContext::camera_zoom += 1.0f;
@@ -115,13 +148,28 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     // Draw here
     world.UpdateHoveredBlock(mouse_position);
 
-    player.ModifyWorldBlocks(&world, delta_time);
+    player.ModifyHoverBlock(world.GetHoveredBlock(), delta_time);
 
     world.DrawWorld(renderer);
 
     // Draw player in looking direction
-    if (player.GetLocalPosition().x > mouse_position.x) player.Draw(renderer, SDL_FLIP_NONE);
-    else player.Draw(renderer, SDL_FLIP_HORIZONTAL);
+    Animation_t current_animation;
+
+    if (player.m_velocity.y != 0.0f)
+    {
+        current_animation = anim_player_jump;
+    }
+    else if (player.m_velocity.x != 0.0f)
+    {
+        current_animation = anim_player_walk;
+    }
+    else
+    {
+        current_animation = anim_player_idle;
+    }
+
+    if (player.GetLocalPosition().x > mouse_position.x) player.Draw(renderer, SDL_FLIP_NONE, current_animation, delta_time);
+    else player.Draw(renderer, SDL_FLIP_HORIZONTAL, current_animation, delta_time);
 
     /* put the newly-cleared rendering on the screen. */
     SDL_RenderPresent(renderer);

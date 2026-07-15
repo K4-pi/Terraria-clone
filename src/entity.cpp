@@ -21,13 +21,7 @@ Entity::Entity(vector2f_t position, vector2f_t size, int id, bool collision, boo
 
 void Entity::Draw(SDL_Renderer *renderer, SDL_FlipMode flip, float angle)
 {
-    // We don't draw entity if it is not on the screen
-    if (m_position.x + m_size.x < GameContext::camera.x &&
-        m_position.x > GameContext::camera.x + GameContext::BASE_RESOLUTION.x &&
-        m_position.y < GameContext::camera.y &&
-        m_position.y > GameContext::camera.y + GameContext::BASE_RESOLUTION.y) return;
-
-    vector4f_t texture_source = id_to_texture_dict[m_id];
+    texture_coordinates_t texture_source = id_to_texture_dict[m_id];
 
     SDL_FRect src_rect = {
         .x = texture_source.x,

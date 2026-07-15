@@ -17,6 +17,7 @@ namespace Input
                 case SDLK_SPACE: state.jump = true; break;
                 case SDLK_1: state.number_1 = true; break;
                 case SDLK_2: state.number_2 = true; break;
+                case SDLK_F11: state.f11 = true; break;
                 default: break;
             }
         }
@@ -29,6 +30,7 @@ namespace Input
                 case SDLK_SPACE: state.jump = false; break;
                 case SDLK_1: state.number_1 = false; break;
                 case SDLK_2: state.number_2 = false; break;
+                case SDLK_F11: state.f11 = false; break;
                 default: break;
             }
         }

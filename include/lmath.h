@@ -10,4 +10,4 @@ typedef struct {
 
 typedef struct {
     float x, y, w, h;
-} vector4f_t;  // Used for one place store of texture position in file
+} texture_coordinates_t;  // Used for one place store of texture position in file
