@@ -42,9 +42,9 @@ static vector2f_t mouse_position;
 static Player player = Player({120.0f * 16.0f, 157.0f * 16.0f}, {30.0f, 45.0f}, PLAYER, 200.0f, true);
 static World world = World();
 
-static Animation_t anim_player_idle;
-static Animation_t anim_player_walk;
-static Animation_t anim_player_jump;
+static animation_t anim_player_idle;
+static animation_t anim_player_walk;
+static animation_t anim_player_jump;
 
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
@@ -152,22 +152,23 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
     world.DrawWorld(renderer);
 
-    // Draw player in looking direction
-    Animation_t current_animation;
+    // Determine animation
+    animation_t *current_animation;
 
     if (player.m_velocity.y != 0.0f)
     {
-        current_animation = anim_player_jump;
+        current_animation = &anim_player_jump;
     }
     else if (player.m_velocity.x != 0.0f)
     {
-        current_animation = anim_player_walk;
+        current_animation = &anim_player_walk;
     }
     else
     {
-        current_animation = anim_player_idle;
+        current_animation = &anim_player_idle;
     }
 
+    // Draw player in looking direction
     if (player.GetLocalPosition().x > mouse_position.x) player.Draw(renderer, SDL_FLIP_NONE, current_animation, delta_time);
     else player.Draw(renderer, SDL_FLIP_HORIZONTAL, current_animation, delta_time);
 

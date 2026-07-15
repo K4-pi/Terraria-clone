@@ -11,7 +11,7 @@ typedef struct
     std::vector<texture_coordinates_t> frames;
     float duration;
     int frame_count;
-} Animation_t;
+} animation_t;
 
 class AnimatedSprite : public Entity
 {
@@ -27,5 +27,5 @@ class AnimatedSprite : public Entity
             bool collision=true,
             bool hovered=false
         );
-        void Draw(SDL_Renderer *renderer, SDL_FlipMode flip, Animation_t animation, float delta, float angle=0.0f);
+        void Draw(SDL_Renderer *renderer, SDL_FlipMode flip, animation_t *animation, float delta, float angle=0.0f);
 };

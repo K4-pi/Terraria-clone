@@ -3,6 +3,7 @@
 #include "../include/id.h"
 
 #include <cmath>
+#include <cstdlib>
 
 World::World()
     : m_hovered_block { nullptr }
@@ -31,6 +32,8 @@ void World::GenerateFlatWorld()
 
     const int baseGroundLevel = 156;
 
+    srand(0);
+
     for (int col = 0; col < mapWidth; ++col)
     {
         float detailWave = std::sin(col * 0.15f) * 4.0f;   // Small, frequent bumps
@@ -44,7 +47,7 @@ void World::GenerateFlatWorld()
             float xPos = col * GameContext::STANDARD_BLOCK_SIZE;
             float yPos = row * GameContext::STANDARD_BLOCK_SIZE;
 
-            if (row >= surfaceRow)
+            if (row == surfaceRow)
             {
                 int blockType = (row == surfaceRow) ? GRASS_BLOCK_ID : DIRT_BLOCK_ID;
 
@@ -55,6 +58,31 @@ void World::GenerateFlatWorld()
                     true,
                     false
                 ));
+            }
+            else if (row > surfaceRow)
+            {
+                int rnd = rand() % 2;
+
+                if (rnd == 0)
+                {
+                    m_blocks.push_back(Block(
+                        {xPos, yPos},
+                        {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
+                        DIRT_BLOCK_ID,
+                        true,
+                        false
+                    ));
+                }
+                else
+                {
+                    m_blocks.push_back(Block(
+                        {xPos, yPos},
+                        {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
+                        STONE_BLOCK_ID,
+                        true,
+                        false
+                    ));
+                }
             }
             else
             {

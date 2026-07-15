@@ -3,7 +3,6 @@
 
 #include "../include/player.h"
 #include "../include/block.h"
-#include "../include/world.h"
 #include "../include/id.h"
 #include "../include/input.h"
 

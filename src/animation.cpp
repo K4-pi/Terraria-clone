@@ -11,17 +11,17 @@ AnimatedSprite::AnimatedSprite(vector2f_t position, vector2f_t size, int id, boo
     , m_current_frame { 0 }
 {};
 
-void AnimatedSprite::Draw(SDL_Renderer *renderer, SDL_FlipMode flip, Animation_t animation, float delta, float angle) // Overloads Entity.h
+void AnimatedSprite::Draw(SDL_Renderer *renderer, SDL_FlipMode flip, animation_t *animation, float delta, float angle) // Overloads Entity.h
 {
     m_timer += delta;
 
-    while (m_timer >= animation.duration)
+    while (m_timer >= animation->duration)
     {
-        m_timer -= animation.duration;
-        m_current_frame = (m_current_frame + 1) % animation.frame_count;
+        m_timer -= animation->duration;
+        m_current_frame = (m_current_frame + 1) % animation->frame_count;
     }
 
-    texture_coordinates_t texture_source = animation.frames[m_current_frame];
+    texture_coordinates_t texture_source = animation->frames[m_current_frame];
 
     SDL_FRect src_rect = {
         .x = texture_source.x,

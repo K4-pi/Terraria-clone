@@ -34,10 +34,11 @@ int LoadTexturesFromFile(SDL_Renderer *renderer, const char *file)
     animation_dict["player_walk"] = {{0, 160, 22, 40}, {32, 160, 22, 40}};
     animation_dict["player_jump"] = {{0, 208, 22, 40}, {0, 208, 22, 40}};
 
-    id_to_texture_dict[1] = {0, 80, 22, 40};  // Player
+    // id_to_texture_dict[1] = {0, 80, 22, 40};  // Player
     id_to_texture_dict[DIRT_BLOCK_ID] = {0,  0, 16, 16};  // Dirt block
     id_to_texture_dict[GRASS_BLOCK_ID] = {16, 0, 16, 16};  // Grass Block
-    id_to_texture_dict[SKY_BLOCK_ID] = {16, 16, 16, 16};
+    id_to_texture_dict[STONE_BLOCK_ID] = {0, 32, 16, 16};   // Stone
+    id_to_texture_dict[SKY_BLOCK_ID] = {0, 16, 16, 16};   // Noting (Sky)
     id_to_texture_dict[HOVER_BLOCK_ID] = {0, 16, 16, 16};  // hover
 
     id_to_gui_texture_dict[0] = {96, 96, 32, 32}; // item slot
