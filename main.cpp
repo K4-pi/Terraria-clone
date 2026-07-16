@@ -47,6 +47,10 @@ static animation_t anim_player_jump;
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
+    (void)appstate; // -Wunused-paramters
+    (void)argc;
+    (void)argv;
+
     SDL_SetAppMetadata("Game", "1.0", "com.example.game");
 
     if (!SDL_Init(SDL_INIT_VIDEO))
@@ -94,6 +98,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 /* This function runs when a new event (mouse input, keypresses, etc) occurs. */
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
+    (void)appstate; // -Wunused-paramters
+
     if (event->type == SDL_EVENT_QUIT)
     {
         return SDL_APP_SUCCESS;  /* end the program, reporting success to the OS. */
@@ -130,6 +136,8 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 /* This function runs once per frame */
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
+    (void)appstate; // -Wunused-paramters
+
     Uint64 current_tick = SDL_GetTicks();
 
     float delta_time = (current_tick - last_tick) / 1000.0f;
@@ -180,6 +188,9 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 /* This function runs once at shutdown. */
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
+    (void)appstate; // -Wunused-paramters
+    (void)result;
+
     DeleteTextures();
     /* SDL will clean up the window/renderer for us. */
 }

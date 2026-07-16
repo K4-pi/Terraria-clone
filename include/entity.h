@@ -11,11 +11,11 @@ class Entity
 
     public:
         vector2f_t m_position;
-        vector2f_t m_velocity;
         vector2f_t m_size;
         int m_id;
         bool m_collision;
         bool m_hovered;
+        vector2f_t m_velocity;
 
         Entity(vector2f_t position, vector2f_t size, int id, bool collision=true);
         void Draw(SDL_Renderer *renderer, SDL_FlipMode flip=SDL_FLIP_NONE, float angle=0.0);

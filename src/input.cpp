@@ -4,7 +4,7 @@
 
 namespace Input
 {
-    InputState state = { false };
+    InputState state = {};
 
     void HandleEvent(const SDL_Event& event)
     {
