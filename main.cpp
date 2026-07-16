@@ -20,9 +20,7 @@
 #include <cstdlib>
 #include <vector>
 
-#include "include/gui.h"
 #include "include/textures.h"
-#include "include/id.h"
 #include "include/lmath.h"
 #include "include/player.h"
 #include "include/world.h"
@@ -39,7 +37,7 @@ static Uint64 last_tick;
 
 static vector2f_t mouse_position;
 
-static Player player = Player({120.0f * 16.0f, 157.0f * 16.0f}, {30.0f, 45.0f}, PLAYER, 200.0f, true);
+static Player player = Player({120.0f * 16.0f, 157.0f * 16.0f}, {30.0f, 45.0f}, 112, 200.0f, true);
 static World world = World();
 
 static animation_t anim_player_idle;
@@ -142,13 +140,13 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     GameContext::UpdateCameraPosition(player.m_position);
 
     // Clear screen
-    SDL_SetRenderDrawColor(renderer, 36, 137, 199, 0);
+    SDL_SetRenderDrawColor(renderer, 36, 140, 190, 0);
     SDL_RenderClear(renderer);
 
     // Draw here
     world.UpdateHoveredBlock(mouse_position);
 
-    player.ModifyHoverBlock(world.GetHoveredBlock(), delta_time);
+    player.ModifyHoverBlock(&world, delta_time);
 
     world.DrawWorld(renderer);
 

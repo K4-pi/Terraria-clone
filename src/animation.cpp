@@ -5,8 +5,8 @@
 
 #include <SDL3/SDL_log.h>
 
-AnimatedSprite::AnimatedSprite(vector2f_t position, vector2f_t size, int id, bool collision, bool hovered)
-    : Entity(position, size, id, collision, hovered)
+AnimatedSprite::AnimatedSprite(vector2f_t position, vector2f_t size, int id, bool collision)
+    : Entity(position, size, id, collision)
     , m_timer { 0.0f }
     , m_current_frame { 0 }
 {};

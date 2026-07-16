@@ -3,16 +3,16 @@
 
 #include "../include/player.h"
 #include "../include/block.h"
-#include "../include/id.h"
 #include "../include/input.h"
+#include "../include/world.h"
 
 #include "../include/game_context.h"
 
 #include <vector>
 #include <cmath>
 
-Player::Player(vector2f_t position, vector2f_t size, int id, float max_speed, bool collision, bool hovered)
-    : AnimatedSprite(position, size, id, collision, hovered)
+Player::Player(vector2f_t position, vector2f_t size, int id, float max_speed, bool collision)
+    : AnimatedSprite(position, size, id, collision)
     , m_direction   { 0, 0 }
     , m_is_grounded { false }
     , m_max_speed   { max_speed }
@@ -150,19 +150,24 @@ bool Player::CheckCollisionY(Block *b, float delta)
     return collision_y && collision_x;
 }
 
-void Player::ModifyHoverBlock(Block *hovered_block, float delta)
+void Player::ModifyHoverBlock(World *world, float delta)
 {
-    if (CheckCollisionX(hovered_block, delta) && CheckCollisionY(hovered_block, delta)) return;
+    vector2f_t tmp_vector = {
+        world->m_hovered_block->m_position.x + GameContext::STANDARD_BLOCK_SIZE * 0.5f,
+        world->m_hovered_block->m_position.y + GameContext::STANDARD_BLOCK_SIZE * 0.5f,
+    };
+
+    if (GetDistanceTo(tmp_vector) > 70.0f) return;
 
     if (Input::state.mouse_left_clicked)
     {
-        hovered_block->m_id = SKY_BLOCK_ID;
-        hovered_block->m_collision = false;
+        world->DamageBlock(1, 40.0f);
     }
 
     if (Input::state.mouse_right_clicked)
     {
-        hovered_block->m_id = GRASS_BLOCK_ID;
-        hovered_block->m_collision = true;
+        if (CheckCollisionX(world->m_hovered_block, delta) && CheckCollisionY(world->m_hovered_block, delta)) return;
+
+        world->PlaceBlock(2);
     }
 }

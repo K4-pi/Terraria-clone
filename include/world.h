@@ -10,16 +10,18 @@ class World
 {
     private:
         std::vector<Block> m_blocks;
-        Block* m_hovered_block;
 
     public:
         World();
 
+        Block* m_hovered_block;
+
         std::vector<Block>& GetBlocks();
-        Block* GetHoveredBlock();
 
         void GenerateFlatWorld();
         void UpdateHoveredBlock(vector2f_t mouse_position);
+        void DamageBlock(int item_hardness, float item_damage);
+        void PlaceBlock(int block_id);
         void DrawWorld(SDL_Renderer* renderer);
         void SetHoveredBlock(int id, bool collision);
 };

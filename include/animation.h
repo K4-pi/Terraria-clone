@@ -24,8 +24,7 @@ class AnimatedSprite : public Entity
             vector2f_t position,
             vector2f_t size,
             int id,
-            bool collision=true,
-            bool hovered=false
+            bool collision=true
         );
         void Draw(SDL_Renderer *renderer, SDL_FlipMode flip, animation_t *animation, float delta, float angle=0.0f);
 };

@@ -17,7 +17,8 @@ class Entity
         bool m_collision;
         bool m_hovered;
 
-        Entity(vector2f_t position, vector2f_t size, int id, bool collision=true, bool hovered=false);
+        Entity(vector2f_t position, vector2f_t size, int id, bool collision=true);
         void Draw(SDL_Renderer *renderer, SDL_FlipMode flip=SDL_FLIP_NONE, float angle=0.0);
         vector2f_t GetLocalPosition();
+        float GetDistanceTo(vector2f_t target_position);
 };

@@ -7,15 +7,16 @@
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_surface.h>
+#include <cmath>
 #include <cstddef>
 #include <cstdlib>
 
-Entity::Entity(vector2f_t position, vector2f_t size, int id, bool collision, bool hovered)
+Entity::Entity(vector2f_t position, vector2f_t size, int id, bool collision)
     : m_position         { position }
     , m_size             { size }
     , m_id               { id }
     , m_collision        { collision }
-    , m_hovered          { hovered }
+    , m_hovered          { false }
     , m_velocity         { 0.0f, 0.0f }
 {}
 
@@ -53,4 +54,12 @@ vector2f_t Entity::GetLocalPosition()
         (m_position.x - GameContext::camera.x) * GameContext::camera_zoom,
         (m_position.y - GameContext::camera.y) * GameContext::camera_zoom,
     };
+}
+
+float Entity::GetDistanceTo(vector2f_t target_position)
+{
+    return std::sqrtf(
+        std::powf(target_position.x - (m_position.x + m_size.x * 0.5f), 2) +
+        std::powf(target_position.y - (m_position.y + m_size.y * 0.5f), 2)
+    );
 }
