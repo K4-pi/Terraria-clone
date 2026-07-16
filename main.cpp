@@ -145,7 +145,12 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
     player.MovePlayer(delta_time, world.GetBlocks());
 
-    GameContext::UpdateCameraPosition(player.m_position);
+    GameContext::UpdateCameraPosition(
+        {
+            player.m_position.x + player.m_size.x * 0.5f,
+            player.m_position.y + player.m_size.y * 0.5f,
+        }
+    );
 
     // Clear screen
     SDL_SetRenderDrawColor(renderer, 36, 140, 190, 0);
