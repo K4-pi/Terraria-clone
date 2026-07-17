@@ -45,7 +45,7 @@ int LoadTexturesFromFile(SDL_Renderer *renderer, const char *file)
     id_to_texture_dict[STONE_BLOCK_ID] = { 0, 32, 16, 16};  // Stone
     id_to_texture_dict[HOVER_BLOCK_ID] = { 0, 16, 16, 16};  // hover
 
-    id_to_gui_texture_dict[0] = {96, 96, 32, 32}; // item slot
+    id_to_gui_texture_dict[0] = {64, 112, 32, 32}; // item slot
 
     return 0;
 }

@@ -1,3 +1,4 @@
+#include "include/gui.h"
 #define SDL_MAIN_USE_CALLBACKS 1  /* use the callbacks instead of main() */
 
 #include <SDL3/SDL_init.h>
@@ -43,6 +44,8 @@ static World world = World();
 static animation_t anim_player_idle;
 static animation_t anim_player_walk;
 static animation_t anim_player_jump;
+
+static GUI::ItemBar item_bar = GUI::ItemBar({GameContext::camera.x + 32.0f, GameContext::camera.y + 32.0f}, 0);
 
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
@@ -182,6 +185,8 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     // Draw player in looking direction
     if (player.GetLocalPosition().x > mouse_position.x) player.Draw(renderer, SDL_FLIP_NONE, current_animation, delta_time);
     else player.Draw(renderer, SDL_FLIP_HORIZONTAL, current_animation, delta_time);
+
+    item_bar.Display(renderer);
 
     /* put the newly-cleared rendering on the screen. */
     SDL_RenderPresent(renderer);
