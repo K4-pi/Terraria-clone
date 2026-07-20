@@ -22,6 +22,7 @@ void Player::MovePlayer(float delta, std::vector<Block> b)
 {
     const float acceleration = 1.10f;
     const float friction     = 350.0f;
+    const float mass         = 500.0f;
 
     if (m_direction.x != 0)
     {
@@ -32,7 +33,7 @@ void Player::MovePlayer(float delta, std::vector<Block> b)
         {
             m_velocity.x = 0.0f;
         }
-        else m_velocity.x += m_direction.x * acceleration * 500.0f * delta;
+        else m_velocity.x += m_direction.x * acceleration * mass * delta;
     }
     else
     {
