@@ -19,6 +19,7 @@ class Entity
 
         Entity(vector2f_t position, vector2f_t size, int id, bool collision=true);
         void Draw(SDL_Renderer *renderer, SDL_FlipMode flip=SDL_FLIP_NONE, float angle=0.0);
-        vector2f_t GetLocalPosition();
+        vector2f_t GetPosition();
+        vector2f_t GetPositionOnScreen();
         float GetDistanceTo(vector2f_t target_position);
 };

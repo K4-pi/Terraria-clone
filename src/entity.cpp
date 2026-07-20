@@ -22,7 +22,7 @@ Entity::Entity(vector2f_t position, vector2f_t size, int id, bool collision)
 
 void Entity::Draw(SDL_Renderer *renderer, SDL_FlipMode flip, float angle)
 {
-    texture_coordinates_t texture_source = id_to_texture_dict[m_id];
+    const texture_coordinates_t texture_source = id_to_texture_dict[m_id];
 
     SDL_FRect src_rect = {
         .x = texture_source.x,
@@ -31,11 +31,11 @@ void Entity::Draw(SDL_Renderer *renderer, SDL_FlipMode flip, float angle)
         .h = texture_source.h,
     };
 
-    vector2f_t local_pos = GetLocalPosition();
+    const vector2f_t position_on_screen = GetPositionOnScreen();
 
     SDL_FRect dest_rect = {
-        .x = local_pos.x,
-        .y = local_pos.y,
+        .x = position_on_screen.x,
+        .y = position_on_screen.y,
         .w = m_size.x * GameContext::camera_zoom,
         .h = m_size.y * GameContext::camera_zoom,
     };
@@ -47,19 +47,31 @@ void Entity::Draw(SDL_Renderer *renderer, SDL_FlipMode flip, float angle)
     }
 }
 
-vector2f_t Entity::GetLocalPosition()
+// Position with pivot in center
+vector2f_t Entity::GetPosition()
+{
+    return 
+    {
+        m_position.x + m_size.x * 0.5f,
+        m_position.y + m_size.y * 0.5f
+    };
+}
+
+vector2f_t Entity::GetPositionOnScreen() 
 {
     return
     {
         (m_position.x - GameContext::camera.x) * GameContext::camera_zoom,
-        (m_position.y - GameContext::camera.y) * GameContext::camera_zoom,
+        (m_position.y - GameContext::camera.y) * GameContext::camera_zoom
     };
 }
 
 float Entity::GetDistanceTo(vector2f_t target_position)
 {
+    const vector2f_t position = GetPosition();
+
     return std::sqrtf(
-        std::powf(target_position.x - (m_position.x + m_size.x * 0.5f), 2) +
-        std::powf(target_position.y - (m_position.y + m_size.y * 0.5f), 2)
+        std::powf(target_position.x - position.x, 2) +
+        std::powf(target_position.y - position.y, 2)
     );
 }

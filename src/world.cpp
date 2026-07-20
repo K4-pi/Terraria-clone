@@ -185,11 +185,11 @@ void World::DrawWorld(SDL_Renderer* renderer)
                 .h = texture_source.h,
             };
 
-            vector2f_t local_pos = current_block.GetLocalPosition();
+            vector2f_t position_on_screen = current_block.GetPositionOnScreen();
 
             SDL_FRect dest_rect = {
-                .x = local_pos.x,
-                .y = local_pos.y,
+                .x = position_on_screen.x,
+                .y = position_on_screen.y,
                 .w = current_block.m_size.x * GameContext::camera_zoom,
                 .h = current_block.m_size.y * GameContext::camera_zoom,
             };

@@ -30,11 +30,11 @@ void AnimatedSprite::Draw(SDL_Renderer *renderer, SDL_FlipMode flip, animation_t
         .h = texture_source.h,
     };
 
-    vector2f_t local_pos = GetLocalPosition();
+    vector2f_t position_on_screen = GetPositionOnScreen();
 
     SDL_FRect dest_rect = {
-        .x = local_pos.x,
-        .y = local_pos.y,
+        .x = position_on_screen.x,
+        .y = position_on_screen.y,
         .w = m_size.x * GameContext::camera_zoom,
         .h = m_size.y * GameContext::camera_zoom,
     };
