@@ -25,8 +25,9 @@ void Player::MovePlayer(float delta, std::vector<Block> b)
 
     if (m_direction.x != 0)
     {
-        float world_edge = GameContext::world_size.x * GameContext::STANDARD_BLOCK_SIZE - m_size.x / GameContext::camera_zoom;
+        float world_edge = GameContext::world_size.x * GameContext::STANDARD_BLOCK_SIZE - m_size.x;
 
+        // Doesn't allow to go off screen (off the map)
         if ((m_position.x <= 0 && m_direction.x == -1) || (m_position.x >= world_edge && m_direction.x == 1))
         {
             m_velocity.x = 0.0f;
