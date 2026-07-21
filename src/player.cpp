@@ -51,11 +51,16 @@ void Player::MovePlayer(float delta, std::vector<Block> b)
 
     m_velocity.x = std::fmax(std::fmin(m_velocity.x, m_max_speed), -m_max_speed);
 
+    m_velocity.y += 981.0f * delta; // gravity
+
     for (Block block : b)
     {
         if (!block.m_collision) continue;
 
-        if (CheckCollisionX(&block, delta))
+        bool is_colliding_x = CheckCollisionX(&block, delta);
+        bool is_colliding_y = CheckCollisionY(&block, delta);
+
+        if (is_colliding_x)
         {
             if (m_velocity.x > 0) // Going right
             {
@@ -67,18 +72,9 @@ void Player::MovePlayer(float delta, std::vector<Block> b)
             }
 
             m_velocity.x = 0; // Zatrzymaj ruch w bok
-            break;
         }
-    }
-    m_position.x += m_velocity.x * delta; // Wykonaj bezpieczny ruch X
 
-    m_velocity.y += 981.0f * delta;  // gravity
-
-    for (Block block : b)
-    {
-        if (!block.m_collision) continue;
-
-        if (CheckCollisionY(&block, delta))
+        if (is_colliding_y)
         {
             if (m_velocity.y > 0) // Falling
             {
@@ -91,10 +87,13 @@ void Player::MovePlayer(float delta, std::vector<Block> b)
             }
 
             m_velocity.y = 0;
-            break;
         }
+
+        if (is_colliding_x && is_colliding_y) break;
     }
-    m_position.y += m_velocity.y * delta;
+    m_position.x += m_velocity.x * delta; // Move X
+
+    m_position.y += m_velocity.y * delta; // Move Y
 }
 
 void Player::HandleInput(const InputState& input_state)
