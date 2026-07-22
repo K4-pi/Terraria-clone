@@ -5,6 +5,7 @@
 #include "../include/block.h"
 #include "../include/input.h"
 #include "../include/world.h"
+#include "../include/id.h"
 
 #include "../include/game_context.h"
 
@@ -58,7 +59,6 @@ void Player::MovePlayer(float delta, std::vector<Block> b)
         if (!block.m_collision) continue;
 
         bool is_colliding_x = CheckCollisionX(&block, delta);
-        bool is_colliding_y = CheckCollisionY(&block, delta);
 
         if (is_colliding_x)
         {
@@ -73,6 +73,15 @@ void Player::MovePlayer(float delta, std::vector<Block> b)
 
             m_velocity.x = 0; // Zatrzymaj ruch w bok
         }
+    }
+
+    m_position.x += m_velocity.x * delta; // Move X
+
+    for (Block block : b)
+    {
+        if (!block.m_collision) continue;
+
+        bool is_colliding_y = CheckCollisionY(&block, delta);
 
         if (is_colliding_y)
         {
@@ -88,10 +97,7 @@ void Player::MovePlayer(float delta, std::vector<Block> b)
 
             m_velocity.y = 0;
         }
-
-        if (is_colliding_x && is_colliding_y) break;
     }
-    m_position.x += m_velocity.x * delta; // Move X
 
     m_position.y += m_velocity.y * delta; // Move Y
 }
@@ -169,6 +175,6 @@ void Player::ModifyHoverBlock(World *world, float delta)
     {
         if (CheckCollisionX(world->m_hovered_block, delta) && CheckCollisionY(world->m_hovered_block, delta)) return;
 
-        world->PlaceBlock(2);
+        world->PlaceBlock(DIRT_BLOCK_ID);
     }
 }
