@@ -18,7 +18,7 @@ class World
 
         std::vector<Block>& GetBlocks();
 
-        void GenerateFlatWorld();
+        void GenerateWorld();
         void UpdateHoveredBlock(vector2f_t mouse_position);
         void DamageBlock(int item_hardness, float item_damage);
         void PlaceBlock(int block_id);

@@ -3,15 +3,17 @@
 #include "../include/id.h"
 #include "../include/block.h"
 #include "../include/textures.h"
+#include "../include/simplex.h"
 
 #include <SDL3/SDL_log.h>
 #include <cmath>
+#include <cstdint>
 #include <cstdlib>
 
 World::World()
     : m_hovered_block { nullptr }
 {
-    GenerateFlatWorld();
+    GenerateWorld();
 }
 
 std::vector<Block> &World::GetBlocks()
@@ -20,7 +22,7 @@ std::vector<Block> &World::GetBlocks()
 }
 
 // Will be changed for noise world generation
-void World::GenerateFlatWorld()
+void World::GenerateWorld()
 {
     m_blocks.clear();
 
@@ -29,64 +31,65 @@ void World::GenerateFlatWorld()
 
     m_blocks.reserve(mapWidth * mapHeight);
 
-    const int baseGroundLevel = 156;
+    const int base_height = round(GameContext::world_size.y * 0.5f);
 
-    srand(0);
+    const std::uint32_t seed = 964; // keep as 3 digits for now
 
-    for (int col = 0; col < mapWidth; ++col)
+    for (int col=0; col < GameContext::world_size.x; col++)
     {
-        float detailWave = std::sin(col * 0.15f) * 4.0f;   // Small, frequent bumps
-        float rollingWave = std::sin(col * 0.04f) * 15.0f; // Large, sweeping hills
+        const float scale = 0.012f;
+        const float gain = 0.45f;
+        const float lacunarity = 1.9f;
+        const int octaves = 4;
 
-        // Determine the actual surface row for this specific column
-        int surfaceRow = baseGroundLevel + static_cast<int>(detailWave + rollingWave);
+        const float amplitude = 15.0f;
 
-        for (int row = 0; row < mapHeight; ++row)
+        float n1 = Simplex::GenerateValue(col, seed, octaves, scale, lacunarity, gain);
+        float surface = base_height + round(n1 * amplitude);
+
+        float n2 = Simplex::GenerateValue(col, seed, octaves, scale + 0.04f, lacunarity + 0.1f, gain + 0.2f);
+        float stone_surface = base_height + 22 + round(n2 * amplitude - 10.0f);
+
+        float xPos = col * GameContext::STANDARD_BLOCK_SIZE;
+
+        for (int row=0; row < GameContext::world_size.y; row++)
         {
-            float xPos = col * GameContext::STANDARD_BLOCK_SIZE;
             float yPos = row * GameContext::STANDARD_BLOCK_SIZE;
 
-            if (row == surfaceRow)
-            {
-                int blockType = (row == surfaceRow) ? GRASS_BLOCK_ID : DIRT_BLOCK_ID;
-
-                m_blocks.push_back(Block(
-                    {xPos, yPos},
-                    {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
-                    blockType,
-                    true
-                ));
-            }
-            else if (row > surfaceRow)
-            {
-                int rnd = rand() % 2;
-
-                if (rnd == 0)
-                {
-                    m_blocks.push_back(Block(
-                        {xPos, yPos},
-                        {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
-                        DIRT_BLOCK_ID,
-                        true
-                    ));
-                }
-                else
-                {
-                    m_blocks.push_back(Block(
-                        {xPos, yPos},
-                        {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
-                        STONE_BLOCK_ID,
-                        true
-                    ));
-                }
-            }
-            else
+            if (row < surface)
             {
                 m_blocks.push_back(Block(
                     {xPos, yPos},
                     {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
                     NULL_BLOCK_ID,
                     false
+                ));
+            }
+            else if (row > surface && row < stone_surface)
+            {
+                m_blocks.push_back(Block(
+                    {xPos, yPos},
+                    {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
+                    DIRT_BLOCK_ID,
+                    true
+                ));
+            }
+            else if (row == surface)
+            {
+                m_blocks.push_back(Block(
+                    {xPos, yPos},
+                    {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
+                    GRASS_BLOCK_ID,
+                    true
+                ));
+            }
+            else
+            {
+                m_blocks.push_back(Block(
+                    {xPos, yPos},
+                    {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
+                    STONE_BLOCK_ID,
+                    true
                 ));
             }
         }
