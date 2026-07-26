@@ -7,6 +7,7 @@ namespace GameContext
     vector2_t BASE_RESOLUTION = { 1920, 1080 };
     vector2_t world_size = { 316, 316 };
     vector2f_t camera = { 0.0f, 0.0f };
+    vector2f_t mouse_position = { 0.0f, 0.0f };
 
     GUI::ItemSlot *selected_item_slot = nullptr;
 

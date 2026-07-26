@@ -1,4 +1,3 @@
-#include "include/input_state.h"
 #define SDL_MAIN_USE_CALLBACKS 1  /* use the callbacks instead of main() */
 
 #include <SDL3/SDL_init.h>
@@ -21,6 +20,7 @@
 #include <cstdlib>
 #include <vector>
 
+#include "include/input_state.h"
 #include "include/textures.h"
 #include "include/lmath.h"
 #include "include/player.h"
@@ -37,8 +37,6 @@ static bool is_window_fullscreen = false;
 static bool show_invetory = false;
 
 static Uint64 last_tick;
-
-static vector2f_t mouse_position;
 
 static Player player = Player({120.0f * 16.0f, 157.0f * 16.0f}, {30.0f, 45.0f}, 112, 200.0f, true);
 static World world = World();
@@ -121,8 +119,8 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
         return SDL_APP_SUCCESS;  /* end the program, reporting success to the OS. */
     }
 
-    SDL_GetMouseState(&mouse_position.x, &mouse_position.y);
-    SDL_RenderCoordinatesFromWindow(renderer, mouse_position.x, mouse_position.y, &mouse_position.x, &mouse_position.y);
+    SDL_GetMouseState(&GameContext::mouse_position.x, &GameContext::mouse_position.y);
+    SDL_RenderCoordinatesFromWindow(renderer, GameContext::mouse_position.x, GameContext::mouse_position.y, &GameContext::mouse_position.x, &GameContext::mouse_position.y);
 
     Input::HandleEvent(*event);
 
@@ -200,7 +198,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     SDL_RenderClear(renderer);
 
     // Draw here
-    world.UpdateHoveredBlock(mouse_position);
+    world.UpdateHoveredBlock(GameContext::mouse_position);
 
     player.ModifyHoverBlock(&world, delta_time);
 
@@ -223,7 +221,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     }
 
     // Draw player in looking direction
-    if (player.GetPositionOnScreen().x > mouse_position.x) player.Draw(renderer, SDL_FLIP_NONE, current_animation, delta_time);
+    if (player.GetPositionOnScreen().x > GameContext::mouse_position.x) player.Draw(renderer, SDL_FLIP_NONE, current_animation, delta_time);
     else player.Draw(renderer, SDL_FLIP_HORIZONTAL, current_animation, delta_time);
 
     item_bar.Display(renderer);

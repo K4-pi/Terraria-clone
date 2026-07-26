@@ -47,6 +47,7 @@ int LoadTexturesFromFile(SDL_Renderer *renderer, const char *file)
 
     id_to_gui_texture_dict[ITEM_SLOT_ID]          = {64, 112, 32, 32}; // item slot
     id_to_gui_texture_dict[SELECTED_ITEM_SLOT_ID] = {96, 112, 32, 32}; // selected item slot
+    id_to_gui_texture_dict[HOVERED_ITEM_SLOT_ID] = {128, 112, 32, 32}; // hovered item slot
 
     return 0;
 }

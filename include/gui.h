@@ -32,6 +32,7 @@ namespace GUI
             ItemSlot();
             ItemSlot(vector2f_t position);
             void DisplayIcon(SDL_Renderer *renderer);
+            bool IsSlotHovered();
     };
 
     class ItemBar : public GuiObject

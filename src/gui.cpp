@@ -5,6 +5,7 @@
 
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_log.h>
+#include <cmath>
 
 static constexpr float SLOT_SIZE = 64.0f;
 
@@ -57,6 +58,14 @@ namespace GUI
         : GuiObject(position, {SLOT_SIZE, SLOT_SIZE}, ITEM_SLOT_ID)
         , m_item_id {}
     {}
+
+    bool ItemSlot::IsSlotHovered()
+    {
+        float x = std::fmin(std::fmax(m_position.x, GameContext::mouse_position.x), m_position.x + m_size.x);
+        float y = std::fmin(std::fmax(m_position.y, GameContext::mouse_position.y), m_position.y + m_size.y);
+
+        return (x == GameContext::mouse_position.x && y == GameContext::mouse_position.y) ? true : false;
+    }
 
     void ItemSlot::DisplayIcon(SDL_Renderer *renderer)
     {
@@ -155,8 +164,11 @@ namespace GUI
 
     void Inventory::Display(SDL_Renderer *renderer)
     {
-        for (ItemSlot slot : m_inventory_slots)
+        for (ItemSlot &slot : m_inventory_slots)
         {
+            if (slot.IsSlotHovered()) slot.m_id = HOVERED_ITEM_SLOT_ID;
+            else slot.m_id = ITEM_SLOT_ID;
+
             slot.Draw(renderer);
         }
     }

@@ -5,6 +5,7 @@
 constexpr int NULL_GUI_ID = 0;
 constexpr int ITEM_SLOT_ID = 1;
 constexpr int SELECTED_ITEM_SLOT_ID = 2;
+constexpr int HOVERED_ITEM_SLOT_ID = 3;
 
 // BLOCK STATUS
 
