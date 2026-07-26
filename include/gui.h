@@ -8,6 +8,8 @@
 
 static constexpr int SLOTS_NUMBER = 5;
 
+static constexpr int INVENTORY_CAPACITY = 25; // 5x5
+
 namespace GUI
 {
     class GuiObject
@@ -27,6 +29,7 @@ namespace GUI
         public:
             int m_item_id;
 
+            ItemSlot();
             ItemSlot(vector2f_t position);
             void DisplayIcon(SDL_Renderer *renderer);
     };
@@ -42,5 +45,15 @@ namespace GUI
             ItemBar(vector2f_t position);
             void Display(SDL_Renderer *renderer);
             void SelectSlot(int slot_number);
+    };
+
+    class Inventory : public GuiObject
+    {
+        private:
+            GUI::ItemSlot m_inventory_slots[INVENTORY_CAPACITY];
+
+        public:
+            Inventory(vector2f_t position);
+            void Display(SDL_Renderer *renderer);
     };
 };

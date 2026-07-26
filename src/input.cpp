@@ -15,6 +15,7 @@ namespace Input
                 case SDLK_A: state.move_left = true; break;
                 case SDLK_D: state.move_right = true; break;
                 case SDLK_SPACE: state.jump = true; break;
+                case SDLK_E: state.inventory = true; break;
                 case SDLK_1: state.number_1 = true; break;
                 case SDLK_2: state.number_2 = true; break;
                 case SDLK_3: state.number_3 = true; break;
@@ -33,6 +34,7 @@ namespace Input
                 case SDLK_A: state.move_left  = false; break;
                 case SDLK_D: state.move_right = false; break;
                 case SDLK_SPACE: state.jump = false; break;
+                case SDLK_E: state.inventory = false; break;
                 case SDLK_1: state.number_1 = false; break;
                 case SDLK_2: state.number_2 = false; break;
                 case SDLK_3: state.number_3 = false; break;

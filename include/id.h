@@ -2,6 +2,7 @@
 
 // GUI - Gui have it's own map so id numbers can be reused
 
+constexpr int NULL_GUI_ID = 0;
 constexpr int ITEM_SLOT_ID = 1;
 constexpr int SELECTED_ITEM_SLOT_ID = 2;
 

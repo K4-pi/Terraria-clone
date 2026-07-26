@@ -23,6 +23,8 @@ namespace GUI
 
     void GuiObject::Draw(SDL_Renderer *renderer)
     {
+        if (m_id == 0) return;
+
         texture_coordinates_t texture_source = id_to_gui_texture_dict[m_id];
 
         SDL_FRect src_rect = {
@@ -45,6 +47,11 @@ namespace GUI
             exit(EXIT_FAILURE);
         }
     }
+
+    ItemSlot::ItemSlot()
+        : GuiObject({0.0f, 0.0f}, {SLOT_SIZE, SLOT_SIZE}, ITEM_SLOT_ID)
+        , m_item_id {}
+    {}
 
     ItemSlot::ItemSlot(vector2f_t position)
         : GuiObject(position, {SLOT_SIZE, SLOT_SIZE}, ITEM_SLOT_ID)
@@ -77,7 +84,7 @@ namespace GUI
     }
 
     ItemBar::ItemBar(vector2f_t position)
-        : GuiObject(position, {SLOT_SIZE * SLOTS_NUMBER, SLOT_SIZE}, ITEM_SLOT_ID)
+        : GuiObject(position, {0, 0}, ITEM_SLOT_ID)
         , m_item_slots {
             GUI::ItemSlot({position.x + 0 * SLOT_SIZE, position.y + 16.0f}),
             GUI::ItemSlot({position.x + 1 * SLOT_SIZE, position.y + 16.0f}),
@@ -121,6 +128,36 @@ namespace GUI
 
                 m_selected_slot->m_id = SELECTED_ITEM_SLOT_ID;
             }
+        }
+    }
+
+    Inventory::Inventory(vector2f_t position)
+        : GuiObject(position, {0, 0}, 0)
+        , m_inventory_slots{}
+    {
+        int x;
+        int y = 0;
+
+        for (int i=0; i < INVENTORY_CAPACITY; i++)
+        {
+            x = i % 5;
+
+            m_inventory_slots[i].m_position = {
+                m_position.x + x * SLOT_SIZE,
+                m_position.y + y * SLOT_SIZE
+            };
+            m_inventory_slots[i].m_id = ITEM_SLOT_ID;
+
+            if (x == 4) y++;
+        }
+
+    }
+
+    void Inventory::Display(SDL_Renderer *renderer)
+    {
+        for (ItemSlot slot : m_inventory_slots)
+        {
+            slot.Draw(renderer);
         }
     }
 };
