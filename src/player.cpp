@@ -175,6 +175,7 @@ void Player::ModifyHoverBlock(World *world, float delta)
     {
         if (CheckCollisionX(world->m_hovered_block, delta) && CheckCollisionY(world->m_hovered_block, delta)) return;
 
-        world->PlaceBlock(DIRT_BLOCK_ID);
+        if (GameContext::selected_item_slot != nullptr)
+            world->PlaceBlock(GameContext::selected_item_slot->m_item_id);
     }
 }

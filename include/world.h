@@ -2,6 +2,7 @@
 
 #include <SDL3/SDL_render.h>
 #include <vector>
+#include <cstdint>
 
 #include "block.h"
 #include "lmath.h"
@@ -18,7 +19,7 @@ class World
 
         std::vector<Block>& GetBlocks();
 
-        void GenerateWorld();
+        void GenerateWorld(const std::uint32_t seed);
         void UpdateHoveredBlock(vector2f_t mouse_position);
         void DamageBlock(int item_hardness, float item_damage);
         void PlaceBlock(int block_id);

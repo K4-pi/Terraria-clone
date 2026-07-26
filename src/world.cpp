@@ -12,9 +12,7 @@
 
 World::World()
     : m_hovered_block { nullptr }
-{
-    GenerateWorld();
-}
+{}
 
 std::vector<Block> &World::GetBlocks()
 {
@@ -22,7 +20,7 @@ std::vector<Block> &World::GetBlocks()
 }
 
 // Will be changed for noise world generation
-void World::GenerateWorld()
+void World::GenerateWorld(const std::uint32_t seed)
 {
     m_blocks.clear();
 
@@ -32,8 +30,6 @@ void World::GenerateWorld()
     m_blocks.reserve(mapWidth * mapHeight);
 
     const int base_height = round(GameContext::world_size.y * 0.5f);
-
-    const std::uint32_t seed = 964; // keep as 3 digits for now
 
     for (int col=0; col < GameContext::world_size.x; col++)
     {

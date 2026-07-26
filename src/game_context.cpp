@@ -1,10 +1,14 @@
 #include "../include/game_context.h"
 
+#include "../include/gui.h"
+
 namespace GameContext
 {
     vector2_t BASE_RESOLUTION = { 1920, 1080 };
     vector2_t world_size = { 316, 316 };
     vector2f_t camera = { 0.0f, 0.0f };
+
+    GUI::ItemSlot *selected_item_slot = nullptr;
 
     float camera_zoom = 2.0f;
 

@@ -1,4 +1,3 @@
-#include "include/gui.h"
 #define SDL_MAIN_USE_CALLBACKS 1  /* use the callbacks instead of main() */
 
 #include <SDL3/SDL_init.h>
@@ -28,6 +27,7 @@
 #include "include/game_context.h"
 #include "include/input.h"
 #include "include/animation.h"
+#include "include/gui.h"
 
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
@@ -45,7 +45,7 @@ static animation_t anim_player_idle;
 static animation_t anim_player_walk;
 static animation_t anim_player_jump;
 
-static GUI::ItemBar item_bar = GUI::ItemBar({GameContext::camera.x + 32.0f, GameContext::camera.y + 32.0f}, 0);
+static GUI::ItemBar item_bar = GUI::ItemBar({GameContext::camera.x + 32.0f, GameContext::camera.y + 32.0f});
 
 /* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
@@ -95,6 +95,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         .frame_count = 2,
     };
 
+    world.GenerateWorld(964);
+
     return SDL_APP_CONTINUE;  // Continue
 }
 
@@ -122,15 +124,41 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
         SDL_SetWindowFullscreen(window, is_window_fullscreen);
         Input::state.f11 = false;
     }
-    if (Input::state.number_1 && GameContext::camera_zoom < 5.0f)
+    if (Input::state.f1 && GameContext::camera_zoom < 5.0f)
     {
         GameContext::camera_zoom += 1.0f;
-        Input::state.number_1 = false;
+        Input::state.f1 = false;
     }
-    if (Input::state.number_2 && GameContext::camera_zoom > 1.0f)
+    if (Input::state.f2 && GameContext::camera_zoom > 1.0f)
     {
         GameContext::camera_zoom -= 1.0f;
+        Input::state.f2 = false;
+    }
+
+    if (Input::state.number_1)
+    {
+        item_bar.SelectSlot(1);
+        Input::state.number_1 = false;
+    }
+    if (Input::state.number_2)
+    {
+        item_bar.SelectSlot(2);
         Input::state.number_2 = false;
+    }
+    if (Input::state.number_3)
+    {
+        item_bar.SelectSlot(3);
+        Input::state.number_3 = false;
+    }
+    if (Input::state.number_4)
+    {
+        item_bar.SelectSlot(4);
+        Input::state.number_4 = false;
+    }
+    if (Input::state.number_5)
+    {
+        item_bar.SelectSlot(5);
+        Input::state.number_5 = false;
     }
 
     return SDL_APP_CONTINUE;  /* carry on with the program! */
@@ -148,12 +176,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
     player.MovePlayer(delta_time, world.GetBlocks());
 
-    GameContext::UpdateCameraPosition(
-        {
-            player.m_position.x + player.m_size.x * 0.5f,
-            player.m_position.y + player.m_size.y * 0.5f,
-        }
-    );
+    GameContext::UpdateCameraPosition(player.GetPosition());
 
     // Clear screen
     SDL_SetRenderDrawColor(renderer, 36, 140, 190, 0);
@@ -183,7 +206,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     }
 
     // Draw player in looking direction
-    if (player.GetLocalPosition().x > mouse_position.x) player.Draw(renderer, SDL_FLIP_NONE, current_animation, delta_time);
+    if (player.GetPositionOnScreen().x > mouse_position.x) player.Draw(renderer, SDL_FLIP_NONE, current_animation, delta_time);
     else player.Draw(renderer, SDL_FLIP_HORIZONTAL, current_animation, delta_time);
 
     item_bar.Display(renderer);

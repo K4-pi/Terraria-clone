@@ -39,13 +39,14 @@ int LoadTexturesFromFile(SDL_Renderer *renderer, const char *file)
     id_to_texture_dict[CRACK_LVL_2] = {16, 48, 16, 16};
     id_to_texture_dict[CRACK_LVL_3] = {32, 48, 16, 16};
 
-    id_to_texture_dict[NULL_BLOCK_ID]  = {16, 16, 16, 16};  // Noting (Sky)
+    id_to_texture_dict[NULL_BLOCK_ID]  = {16, 16, 16, 16};  // Nothing (Sky)
     id_to_texture_dict[GRASS_BLOCK_ID] = {16,  0, 16, 16};  // Grass Block
     id_to_texture_dict[DIRT_BLOCK_ID]  = { 0,  0, 16, 16};  // Dirt block
     id_to_texture_dict[STONE_BLOCK_ID] = { 0, 32, 16, 16};  // Stone
     id_to_texture_dict[HOVER_BLOCK_ID] = { 0, 16, 16, 16};  // hover
 
-    id_to_gui_texture_dict[0] = {64, 112, 32, 32}; // item slot
+    id_to_gui_texture_dict[ITEM_SLOT_ID]          = {64, 112, 32, 32}; // item slot
+    id_to_gui_texture_dict[SELECTED_ITEM_SLOT_ID] = {96, 112, 32, 32}; // selected item slot
 
     return 0;
 }

@@ -22,11 +22,25 @@ namespace GUI
             void Draw(SDL_Renderer *renderer);
     };
 
-    class ItemBar : public GuiObject
+    class ItemSlot : public GuiObject
     {
         public:
-            ItemBar(vector2f_t position, int id);
-            GuiObject m_item_slots[SLOTS_NUMBER];
+            int m_item_id;
+
+            ItemSlot(vector2f_t position);
+            void DisplayIcon(SDL_Renderer *renderer);
+    };
+
+    class ItemBar : public GuiObject
+    {
+        private:
+            GUI::ItemSlot m_item_slots[SLOTS_NUMBER];
+
+        public:
+            GUI::ItemSlot *m_selected_slot;
+
+            ItemBar(vector2f_t position);
             void Display(SDL_Renderer *renderer);
+            void SelectSlot(int slot_number);
     };
 };

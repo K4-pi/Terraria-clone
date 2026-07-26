@@ -17,6 +17,11 @@ namespace Input
                 case SDLK_SPACE: state.jump = true; break;
                 case SDLK_1: state.number_1 = true; break;
                 case SDLK_2: state.number_2 = true; break;
+                case SDLK_3: state.number_3 = true; break;
+                case SDLK_4: state.number_4 = true; break;
+                case SDLK_5: state.number_5 = true; break;
+                case SDLK_F1: state.f1 = true; break;
+                case SDLK_F2: state.f2 = true; break;
                 case SDLK_F11: state.f11 = true; break;
                 default: break;
             }
@@ -25,11 +30,16 @@ namespace Input
         {
             switch (event.key.key)
             {
-                case SDLK_A: state.move_left = false; break;
+                case SDLK_A: state.move_left  = false; break;
                 case SDLK_D: state.move_right = false; break;
                 case SDLK_SPACE: state.jump = false; break;
                 case SDLK_1: state.number_1 = false; break;
                 case SDLK_2: state.number_2 = false; break;
+                case SDLK_3: state.number_3 = false; break;
+                case SDLK_4: state.number_4 = false; break;
+                case SDLK_5: state.number_5 = false; break;
+                case SDLK_F1: state.f1 = false; break;
+                case SDLK_F2: state.f2 = false; break;
                 case SDLK_F11: state.f11 = false; break;
                 default: break;
             }
