@@ -1,14 +1,13 @@
 #pragma once
 
 #include "lmath.h"
+#include "inventory.h"
 
 #include <SDL3/SDL_render.h>
 #include <array>
 #include <string>
 
 static constexpr int SLOTS_NUMBER = 5;
-
-static constexpr int INVENTORY_CAPACITY = 25; // 5x5
 
 namespace GUI
 {
@@ -45,16 +44,25 @@ namespace GUI
 
             ItemBar(vector2f_t position);
             void Display(SDL_Renderer *renderer);
+            void UpdateItemBar();
             void SelectSlot(int slot_number);
     };
 
     class Inventory : public GuiObject
     {
         private:
-            GUI::ItemSlot m_inventory_slots[INVENTORY_CAPACITY];
+            std::array<GUI::ItemSlot, INVENTORY_CAPACITY> m_inventory_slots;
 
         public:
+            ItemSlot *m_hovered_item_slot;
+            ItemSlot *m_selected_item_slot;
+
             Inventory(vector2f_t position);
             void Display(SDL_Renderer *renderer);
+            void UpdateInventoryView();
+            void SelectSlot();
+            void MoveItemToHoveredSlot();
+            bool IsSlotSelected();
+            void ResetSelectedSlot();
     };
 };

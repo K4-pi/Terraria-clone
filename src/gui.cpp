@@ -2,6 +2,7 @@
 #include "../include/textures.h"
 #include "../include/id.h"
 #include "../include/game_context.h"
+#include "../include/inventory.h"
 
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_log.h>
@@ -11,6 +12,8 @@ static constexpr float SLOT_SIZE = 64.0f;
 
 static constexpr float ICON_SIZE = 32.0f;
 static constexpr float ICON_OFFSET = ICON_SIZE * 0.5f;
+
+static constexpr float INVETORY_SLOTS_OFFSET = 4.0f;
 
 namespace GUI
 {
@@ -61,8 +64,8 @@ namespace GUI
 
     bool ItemSlot::IsSlotHovered()
     {
-        float x = std::fmin(std::fmax(m_position.x, GameContext::mouse_position.x), m_position.x + m_size.x);
-        float y = std::fmin(std::fmax(m_position.y, GameContext::mouse_position.y), m_position.y + m_size.y);
+        float x = std::fmin(std::fmax(m_position.x + INVETORY_SLOTS_OFFSET, GameContext::mouse_position.x), m_position.x + m_size.x - INVETORY_SLOTS_OFFSET);
+        float y = std::fmin(std::fmax(m_position.y + INVETORY_SLOTS_OFFSET, GameContext::mouse_position.y), m_position.y + m_size.y - INVETORY_SLOTS_OFFSET);
 
         return (x == GameContext::mouse_position.x && y == GameContext::mouse_position.y) ? true : false;
     }
@@ -106,12 +109,20 @@ namespace GUI
 
         GameContext::selected_item_slot = m_selected_slot;
 
-        // For testing
-        m_item_slots[0].m_item_id = 1;
-        m_item_slots[1].m_item_id = 2;
-        m_item_slots[2].m_item_id = 3;
+        UpdateItemBar();
 
         m_selected_slot->m_id = SELECTED_ITEM_SLOT_ID;
+    }
+
+    void ItemBar::UpdateItemBar()
+    {
+        for (int i=0; i < ITEM_BAR_CAPACITY; i++)
+        {
+            Item::Item *bar_item = items_on_item_bar[i];
+
+            if (bar_item != nullptr)
+                m_item_slots[i].m_item_id = bar_item->item_id;
+        }
     }
 
     void ItemBar::Display(SDL_Renderer *renderer)
@@ -142,14 +153,20 @@ namespace GUI
 
     Inventory::Inventory(vector2f_t position)
         : GuiObject(position, {0, 0}, 0)
-        , m_inventory_slots{}
+        , m_inventory_slots {}
+        , m_hovered_item_slot { nullptr }
+        , m_selected_item_slot { nullptr }
     {
+        const int SLOTS_IN_ROW = 5;
+
+        UpdateInventory();
+
         int x;
         int y = 0;
 
         for (int i=0; i < INVENTORY_CAPACITY; i++)
         {
-            x = i % 5;
+            x = i % SLOTS_IN_ROW;
 
             m_inventory_slots[i].m_position = {
                 m_position.x + x * SLOT_SIZE,
@@ -157,19 +174,73 @@ namespace GUI
             };
             m_inventory_slots[i].m_id = ITEM_SLOT_ID;
 
-            if (x == 4) y++;
-        }
+            UpdateInventoryView();
+            // m_inventory_slots[i].m_item_id = items_in_inventory[i].item_id;
 
+            if (x == SLOTS_IN_ROW - 1) y++;
+        }
+    }
+
+    void Inventory::UpdateInventoryView()
+    {
+        for (int i=0; i < INVENTORY_CAPACITY; i++)
+            m_inventory_slots[i].m_item_id = items_in_inventory[i].item_id;
     }
 
     void Inventory::Display(SDL_Renderer *renderer)
     {
         for (ItemSlot &slot : m_inventory_slots)
         {
-            if (slot.IsSlotHovered()) slot.m_id = HOVERED_ITEM_SLOT_ID;
-            else slot.m_id = ITEM_SLOT_ID;
+            // If current slot is the hovered one, we store it's original id to change it back to it
+            // Terrible GUI draw design... probably will be changed
+            if (slot.IsSlotHovered())
+            {
+                m_hovered_item_slot = &slot;
 
-            slot.Draw(renderer);
+                int stored_id = slot.m_id;
+                slot.m_id = HOVERED_ITEM_SLOT_ID;
+
+                slot.Draw(renderer);
+                slot.m_id = stored_id;
+            }
+            else slot.Draw(renderer);
+
+            slot.DisplayIcon(renderer);
+        }
+    }
+
+    void Inventory::SelectSlot()
+    {
+        m_selected_item_slot = m_hovered_item_slot;
+        m_selected_item_slot->m_id = SELECTED_ITEM_SLOT_ID;
+    }
+
+    void Inventory::MoveItemToHoveredSlot()
+    {
+        const int selected_slot_index = m_selected_item_slot - &m_inventory_slots[0];
+        const int hovered_slot_index = m_hovered_item_slot - &m_inventory_slots[0];
+
+        if (items_in_inventory[selected_slot_index].item_id == 0) return; // TODO: look into this, might make false operations
+
+        Item::Item tmp_item = items_in_inventory[selected_slot_index];
+
+        items_in_inventory[selected_slot_index] = items_in_inventory[hovered_slot_index];
+        items_in_inventory[hovered_slot_index] = tmp_item;
+
+        UpdateInventoryView();
+    }
+
+    bool Inventory::IsSlotSelected()
+    {
+        return (m_selected_item_slot == nullptr) ? false : true;
+    }
+
+    void Inventory::ResetSelectedSlot()
+    {
+        if (m_selected_item_slot != nullptr)
+        {
+            m_selected_item_slot->m_id = ITEM_SLOT_ID;
+            m_selected_item_slot = nullptr;
         }
     }
 };

@@ -19,6 +19,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <vector>
+#include <iostream>
 
 #include "include/input_state.h"
 #include "include/textures.h"
@@ -106,6 +107,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     world.GenerateWorld(964);
 
+    item_bar.UpdateItemBar();
+
     return SDL_APP_CONTINUE;  // Continue
 }
 
@@ -125,6 +128,20 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
     Input::HandleEvent(*event);
 
     player.HandleInput(Input::state);
+
+    if (Input::state.mouse_left_clicked && show_invetory)
+    {
+        if (inventory.IsSlotSelected())
+        {
+            inventory.MoveItemToHoveredSlot();
+            inventory.ResetSelectedSlot();
+
+            item_bar.UpdateItemBar();
+        }
+        else inventory.SelectSlot();
+
+        Input::state.mouse_left_clicked = false;
+    }
 
     if (Input::state.f11)
     {
@@ -147,6 +164,8 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
     if (Input::state.inventory)
     {
         show_invetory = !show_invetory;
+        inventory.ResetSelectedSlot();
+
         Input::state.inventory = false;
     }
 
@@ -197,12 +216,15 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     SDL_SetRenderDrawColor(renderer, 36, 140, 190, 0);
     SDL_RenderClear(renderer);
 
-    // Draw here
-    world.UpdateHoveredBlock(GameContext::mouse_position);
-
-    player.ModifyHoverBlock(&world, delta_time);
+    if (!show_invetory) // You can't interact with world while in inventory
+    {
+        world.UpdateHoveredBlock(GameContext::mouse_position); // Updates info which block is hovered
+        player.ModifyHoverBlock(&world, delta_time); // Modifies hovered block data
+    }
 
     world.DrawWorld(renderer);
+
+    std::cout << inventory.IsSlotSelected() << "\n";
 
     // Determine animation
     animation_t *current_animation;
@@ -226,8 +248,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
     item_bar.Display(renderer);
 
-    if (show_invetory)
-        inventory.Display(renderer);
+    if (show_invetory) inventory.Display(renderer);
 
     /* put the newly-cleared rendering on the screen. */
     SDL_RenderPresent(renderer);
