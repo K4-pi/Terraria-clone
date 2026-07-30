@@ -27,6 +27,7 @@ namespace GUI
     {
         public:
             int m_item_id;
+            Item::Item *m_item;
 
             ItemSlot();
             ItemSlot(vector2f_t position);
@@ -62,6 +63,7 @@ namespace GUI
             void UpdateInventoryView();
             void SelectSlot();
             void MoveItemToHoveredSlot();
+            void MapItemToItemBar(int bar_number);
             bool IsSlotSelected();
             void ResetSelectedSlot();
     };

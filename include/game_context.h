@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gui.h"
+#include "item.h"
 #include "lmath.h"
 
 namespace GameContext
@@ -14,6 +15,7 @@ namespace GameContext
     extern float camera_zoom;
 
     extern GUI::ItemSlot *selected_item_slot;
+    // extern Item::Item *selected_item;
 
     void UpdateCameraPosition(vector2f_t position);
 }

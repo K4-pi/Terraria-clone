@@ -55,11 +55,13 @@ namespace GUI
     ItemSlot::ItemSlot()
         : GuiObject({0.0f, 0.0f}, {SLOT_SIZE, SLOT_SIZE}, ITEM_SLOT_ID)
         , m_item_id {}
+        , m_item { nullptr }
     {}
 
     ItemSlot::ItemSlot(vector2f_t position)
         : GuiObject(position, {SLOT_SIZE, SLOT_SIZE}, ITEM_SLOT_ID)
         , m_item_id {}
+        , m_item { nullptr }
     {}
 
     bool ItemSlot::IsSlotHovered()
@@ -106,11 +108,9 @@ namespace GUI
         }
         , m_selected_slot { &m_item_slots[0] }
     {
-
-        GameContext::selected_item_slot = m_selected_slot;
-
         UpdateItemBar();
 
+        GameContext::selected_item_slot = m_selected_slot;
         m_selected_slot->m_id = SELECTED_ITEM_SLOT_ID;
     }
 
@@ -121,7 +121,10 @@ namespace GUI
             Item::Item *bar_item = items_on_item_bar[i];
 
             if (bar_item != nullptr)
+            {
                 m_item_slots[i].m_item_id = bar_item->item_id;
+                m_item_slots[i].m_item = bar_item;
+            }
         }
     }
 
@@ -144,7 +147,8 @@ namespace GUI
 
                 m_selected_slot = &m_item_slots[slot_number - 1];
 
-                GameContext::selected_item_slot = &m_item_slots[slot_number - 1];
+                GameContext::selected_item_slot = m_selected_slot;
+                // GameContext::selected_item = items_on_item_bar[slot_number - 1];
 
                 m_selected_slot->m_id = SELECTED_ITEM_SLOT_ID;
             }
@@ -175,7 +179,9 @@ namespace GUI
             m_inventory_slots[i].m_id = ITEM_SLOT_ID;
 
             UpdateInventoryView();
-            // m_inventory_slots[i].m_item_id = items_in_inventory[i].item_id;
+
+            m_inventory_slots[i].m_item_id = items_in_inventory[i].item_id;
+            m_inventory_slots[i].m_item = &items_in_inventory[i];
 
             if (x == SLOTS_IN_ROW - 1) y++;
         }
@@ -184,7 +190,21 @@ namespace GUI
     void Inventory::UpdateInventoryView()
     {
         for (int i=0; i < INVENTORY_CAPACITY; i++)
-            m_inventory_slots[i].m_item_id = items_in_inventory[i].item_id;
+        {
+            Item::Item *item = &items_in_inventory[i];
+
+            if (item->capacity <= 0)
+            {
+                items_in_inventory[i] = Item::Item{0, 0, Item::BLOCK};
+
+                m_inventory_slots[i].m_item_id = 0;
+            }
+            else
+            {
+                m_inventory_slots[i].m_item_id = items_in_inventory[i].item_id;
+                m_inventory_slots[i].m_item = &items_in_inventory[i];
+            }
+        }
     }
 
     void Inventory::Display(SDL_Renderer *renderer)
@@ -230,6 +250,16 @@ namespace GUI
         UpdateInventoryView();
     }
 
+    void Inventory::MapItemToItemBar(int bar_number)
+    {
+        const int selected_slot_index = m_selected_item_slot - &m_inventory_slots[0];
+
+        if (bar_number < 1 || bar_number > ITEM_BAR_CAPACITY) return;
+
+        items_on_item_bar[bar_number - 1] = &items_in_inventory[selected_slot_index];
+        ResetSelectedSlot();
+    }
+
     bool Inventory::IsSlotSelected()
     {
         return (m_selected_item_slot == nullptr) ? false : true;
@@ -240,6 +270,7 @@ namespace GUI
         if (m_selected_item_slot != nullptr)
         {
             m_selected_item_slot->m_id = ITEM_SLOT_ID;
+            m_selected_item_slot->m_item = nullptr;
             m_selected_item_slot = nullptr;
         }
     }

@@ -158,6 +158,8 @@ bool Player::CheckCollisionY(Block *b, float delta)
 
 void Player::ModifyHoverBlock(World *world, float delta)
 {
+    if (world->m_hovered_block == nullptr) return;
+
     vector2f_t tmp_vector = {
         world->m_hovered_block->m_position.x + GameContext::STANDARD_BLOCK_SIZE * 0.5f,
         world->m_hovered_block->m_position.y + GameContext::STANDARD_BLOCK_SIZE * 0.5f,
@@ -173,8 +175,18 @@ void Player::ModifyHoverBlock(World *world, float delta)
     if (Input::state.mouse_right_clicked)
     {
         if (CheckCollisionX(world->m_hovered_block, delta) && CheckCollisionY(world->m_hovered_block, delta)) return;
+        if (GameContext::selected_item_slot == nullptr) return;
+        if (world->m_hovered_block->m_id != 0) return;
 
-        if (GameContext::selected_item_slot != nullptr)
-            world->PlaceBlock(GameContext::selected_item_slot->m_item_id);
+        Item::Item *selected_item = GameContext::selected_item_slot->m_item;
+
+        if (selected_item != nullptr && selected_item->capacity > 0)
+        {
+            world->PlaceBlock(selected_item->item_id);
+            selected_item->capacity -= 1;
+
+            if (selected_item->capacity <= 0) GameContext::selected_item_slot = nullptr;
+        }
+
     }
 }

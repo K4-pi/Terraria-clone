@@ -8,13 +8,11 @@ constexpr int SELECTED_ITEM_SLOT_ID = 2;
 constexpr int HOVERED_ITEM_SLOT_ID = 3;
 
 // BLOCK STATUS
-
 constexpr int CRACK_LVL_1 = -1;
 constexpr int CRACK_LVL_2 = -2;
 constexpr int CRACK_LVL_3 = -3;
 
 // BLOCKS
-
 constexpr int NULL_BLOCK_ID  = 0;
 constexpr int DIRT_BLOCK_ID  = 1;
 constexpr int GRASS_BLOCK_ID = 2;

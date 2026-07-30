@@ -11,7 +11,7 @@ void UpdateInventory()
 {
     Item::LoadItemTable();
 
-    items_in_inventory[0] = Item::Item {STONE_BLOCK_ID, 23}; // for testing
+    items_in_inventory[0] = Item::Item{STONE_BLOCK_ID, 5, Item::BLOCK}; // for testing
 
     items_on_item_bar[0] = &items_in_inventory[0]; // for testing
 }

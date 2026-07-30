@@ -1,3 +1,4 @@
+#include "include/inventory.h"
 #define SDL_MAIN_USE_CALLBACKS 1  /* use the callbacks instead of main() */
 
 #include <SDL3/SDL_init.h>
@@ -143,22 +144,22 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
         Input::state.mouse_left_clicked = false;
     }
 
-    if (Input::state.f11)
-    {
-        is_window_fullscreen = !is_window_fullscreen;
-
-        SDL_SetWindowFullscreen(window, is_window_fullscreen);
-        Input::state.f11 = false;
-    }
     if (Input::state.f1 && GameContext::camera_zoom < 5.0f)
     {
         GameContext::camera_zoom += 1.0f;
         Input::state.f1 = false;
     }
-    if (Input::state.f2 && GameContext::camera_zoom > 1.0f)
+    else if (Input::state.f2 && GameContext::camera_zoom > 1.0f)
     {
         GameContext::camera_zoom -= 1.0f;
         Input::state.f2 = false;
+    }
+    else if (Input::state.f11)
+    {
+        is_window_fullscreen = !is_window_fullscreen;
+
+        SDL_SetWindowFullscreen(window, is_window_fullscreen);
+        Input::state.f11 = false;
     }
 
     if (Input::state.inventory)
@@ -171,27 +172,52 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 
     if (Input::state.number_1)
     {
-        item_bar.SelectSlot(1);
+        if (show_invetory && inventory.IsSlotSelected())
+        {
+            inventory.MapItemToItemBar(1);
+            item_bar.UpdateItemBar();
+        }
+        else item_bar.SelectSlot(1);
         Input::state.number_1 = false;
     }
-    if (Input::state.number_2)
+    else if (Input::state.number_2)
     {
-        item_bar.SelectSlot(2);
+        if (show_invetory && inventory.IsSlotSelected())
+        {
+            inventory.MapItemToItemBar(2);
+            item_bar.UpdateItemBar();
+        }
+        else item_bar.SelectSlot(2);
         Input::state.number_2 = false;
     }
-    if (Input::state.number_3)
+    else if (Input::state.number_3)
     {
-        item_bar.SelectSlot(3);
+        if (show_invetory && inventory.IsSlotSelected())
+        {
+            inventory.MapItemToItemBar(3);
+            item_bar.UpdateItemBar();
+        }
+        else item_bar.SelectSlot(3);
         Input::state.number_3 = false;
     }
-    if (Input::state.number_4)
+    else if (Input::state.number_4)
     {
-        item_bar.SelectSlot(4);
+        if (show_invetory && inventory.IsSlotSelected())
+        {
+            inventory.MapItemToItemBar(4);
+            item_bar.UpdateItemBar();
+        }
+        else item_bar.SelectSlot(4);
         Input::state.number_4 = false;
     }
-    if (Input::state.number_5)
+    else if (Input::state.number_5)
     {
-        item_bar.SelectSlot(5);
+        if (show_invetory && inventory.IsSlotSelected())
+        {
+            inventory.MapItemToItemBar(5);
+            item_bar.UpdateItemBar();
+        }
+        else item_bar.SelectSlot(5);
         Input::state.number_5 = false;
     }
 
@@ -220,11 +246,12 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     {
         world.UpdateHoveredBlock(GameContext::mouse_position); // Updates info which block is hovered
         player.ModifyHoverBlock(&world, delta_time); // Modifies hovered block data
+
+        item_bar.UpdateItemBar();
+        inventory.UpdateInventoryView();
     }
 
     world.DrawWorld(renderer);
-
-    std::cout << inventory.IsSlotSelected() << "\n";
 
     // Determine animation
     animation_t *current_animation;
