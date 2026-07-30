@@ -180,7 +180,9 @@ void Player::ModifyHoverBlock(World *world, float delta)
 
         Item::Item *selected_item = GameContext::selected_item_slot->m_item;
 
-        if (selected_item != nullptr && selected_item->capacity > 0)
+        if (selected_item == nullptr) return;
+
+        if (selected_item->type == Item::BLOCK && selected_item->capacity > 0)
         {
             world->PlaceBlock(selected_item->item_id);
             selected_item->capacity -= 1;
