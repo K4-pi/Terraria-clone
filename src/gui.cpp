@@ -224,6 +224,11 @@ namespace GUI
 
     void Inventory::Display(SDL_Renderer *renderer)
     {
+
+        // Temporary background
+        GuiObject inv_background = GuiObject({m_position.x - 32.0f, m_position.y - 32.0f}, {6 * SLOT_SIZE, 6 * SLOT_SIZE}, ITEM_SLOT_ID);
+        inv_background.Draw(renderer);
+
         for (ItemSlot &slot : m_inventory_slots)
         {
             // If current slot is the hovered one, we store it's original id to change it back to it

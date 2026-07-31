@@ -11,7 +11,7 @@
 #include <cstddef>
 #include <cstdlib>
 
-static constexpr SDL_Color TEXT_COLOR = {0,0,0,0};
+static constexpr SDL_Color TEXT_COLOR = {255, 255, 255, 0};
 
 namespace Text
 {
