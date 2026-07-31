@@ -40,6 +40,8 @@ static SDL_Renderer *renderer = NULL;
 static bool is_window_fullscreen = false;
 static bool show_invetory = false;
 
+static SDL_FlipMode flip_mode = SDL_FLIP_NONE;
+
 static Uint64 last_tick;
 
 static Player player = Player({120.0f * 16.0f, 157.0f * 16.0f}, {30.0f, 45.0f}, 112, 200.0f, true);
@@ -285,8 +287,10 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     }
 
     // Draw player in looking direction
-    if (player.GetPositionOnScreen().x > GameContext::mouse_position.x) player.Draw(renderer, SDL_FLIP_NONE, current_animation, delta_time);
-    else player.Draw(renderer, SDL_FLIP_HORIZONTAL, current_animation, delta_time);
+    if (player.m_direction.x == -1.0f) flip_mode = SDL_FLIP_NONE;
+    else if (player.m_direction.x == 1.0f) flip_mode = SDL_FLIP_HORIZONTAL;
+
+    player.Draw(renderer, flip_mode, current_animation, delta_time);
 
     item_bar.Display(renderer);
 
