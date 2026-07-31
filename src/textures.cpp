@@ -22,6 +22,8 @@ int LoadTexturesFromFile(SDL_Renderer *renderer, const char *file)
 {
     SDL_Surface *tmp_surface = SDL_LoadSurface(file);
 
+    if (tmp_surface == NULL) return -1;
+
     TEXTURES_TILEMAP = SDL_CreateTextureFromSurface(renderer, tmp_surface);
 
     SDL_DestroySurface(tmp_surface);

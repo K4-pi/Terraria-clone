@@ -6,7 +6,7 @@ CXXSTD := c++20
 CXXFLAGS := -std=$(CXXSTD) -Wall -Wextra -Wpedantic -O2 -MMD -MP
 CPPFLAGS := -Iinclude
 LDFLAGS :=
-LDLIBS := -lSDL3 -lSDL3_image
+LDLIBS := -lSDL3 -lSDL3_image -lSDL3_ttf
 
 SRC := main.cpp $(wildcard src/*.cpp)
 OBJ := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(SRC))

@@ -2,6 +2,7 @@
 
 #include "lmath.h"
 #include "inventory.h"
+#include "text.h"
 
 #include <SDL3/SDL_render.h>
 #include <array>
@@ -28,6 +29,7 @@ namespace GUI
         public:
             int m_item_id;
             Item::Item *m_item;
+            Text::Text m_text;
 
             ItemSlot();
             ItemSlot(vector2f_t position);

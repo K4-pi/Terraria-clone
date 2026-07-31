@@ -1,5 +1,4 @@
 #include "../include/game_context.h"
-#include "../include/item.h"
 
 namespace GameContext
 {
@@ -8,8 +7,9 @@ namespace GameContext
     vector2f_t camera = { 0.0f, 0.0f };
     vector2f_t mouse_position = { 0.0f, 0.0f };
 
+    TTF_Font *text_font = NULL;
+
     GUI::ItemSlot *selected_item_slot = nullptr;
-    // Item::Item *selected_item = nullptr;
 
     float camera_zoom = 2.0f;
 

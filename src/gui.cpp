@@ -7,6 +7,7 @@
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_log.h>
 #include <cmath>
+#include <string>
 
 static constexpr float SLOT_SIZE = 64.0f;
 
@@ -56,12 +57,14 @@ namespace GUI
         : GuiObject({0.0f, 0.0f}, {SLOT_SIZE, SLOT_SIZE}, ITEM_SLOT_ID)
         , m_item_id {}
         , m_item { nullptr }
+        , m_text { Text::Text({0.0f, 0.0f}) }
     {}
 
     ItemSlot::ItemSlot(vector2f_t position)
         : GuiObject(position, {SLOT_SIZE, SLOT_SIZE}, ITEM_SLOT_ID)
         , m_item_id {}
         , m_item { nullptr }
+        , m_text { Text::Text(position) }
     {}
 
     bool ItemSlot::IsSlotHovered()
@@ -94,6 +97,13 @@ namespace GUI
         {
             SDL_Log("Failed to draw Entity: %s", SDL_GetError());
             exit(EXIT_FAILURE);
+        }
+
+        if (m_item != nullptr && m_item->capacity > 0)
+        {
+            m_text.m_position = m_position;  //Update text position
+
+            m_text.Draw(renderer, std::to_string(m_item->capacity));
         }
     }
 
@@ -177,6 +187,11 @@ namespace GUI
                 m_position.y + y * SLOT_SIZE
             };
             m_inventory_slots[i].m_id = ITEM_SLOT_ID;
+
+            m_inventory_slots[i].m_text.m_position = {
+                m_position.x,
+                m_position.y
+            };
 
             UpdateInventoryView();
 

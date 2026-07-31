@@ -1,4 +1,5 @@
-#include "include/inventory.h"
+#include "include/text.h"
+#include <SDL3/SDL_pixels.h>
 #define SDL_MAIN_USE_CALLBACKS 1  /* use the callbacks instead of main() */
 
 #include <SDL3/SDL_init.h>
@@ -15,12 +16,13 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3_image/SDL_image.h>
+#include <SDL3_ttf/SDL_ttf.h>
+#include <SDL3_ttf/SDL_textengine.h>
 
 #include <cstdio>
 #include <cstddef>
 #include <cstdlib>
 #include <vector>
-#include <iostream>
 
 #include "include/input_state.h"
 #include "include/textures.h"
@@ -83,6 +85,19 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     if (LoadTexturesFromFile(renderer, "resources/tilemap.png") == -1)
     {
         SDL_Log("Failed to load textures from a file: %s", SDL_GetError());
+        return SDL_APP_FAILURE;
+    }
+
+    if (!TTF_Init())
+    {
+        SDL_Log("Failed to init TTF: %s", SDL_GetError());
+        return SDL_APP_FAILURE;
+    }
+
+    GameContext::text_font = TTF_OpenFont("resources/mc_font.ttf", GameContext::FONT_SIZE);
+    if (GameContext::text_font == NULL)
+    {
+        SDL_Log("Failed to open font file: %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
 
@@ -291,5 +306,6 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result)
     (void)result;
 
     DeleteTextures();
+
     /* SDL will clean up the window/renderer for us. */
 }
