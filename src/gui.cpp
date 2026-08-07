@@ -6,8 +6,11 @@
 
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_log.h>
+
 #include <cmath>
 #include <string>
+
+#include <iostream>
 
 static constexpr float SLOT_SIZE = 64.0f;
 
@@ -101,8 +104,6 @@ namespace GUI
 
         if (m_item != nullptr && m_item->capacity > 0)
         {
-            m_text.m_position = m_position;  //Update text position
-
             m_text.Draw(renderer, std::to_string(m_item->capacity));
         }
     }
@@ -182,15 +183,18 @@ namespace GUI
         {
             x = i % SLOTS_IN_ROW;
 
+            const float X_POSITION = m_position.x + x * SLOT_SIZE;
+            const float Y_POSITION = m_position.y + y * SLOT_SIZE;
+
             m_inventory_slots[i].m_position = {
-                m_position.x + x * SLOT_SIZE,
-                m_position.y + y * SLOT_SIZE
+                X_POSITION,
+                Y_POSITION
             };
             m_inventory_slots[i].m_id = ITEM_SLOT_ID;
 
             m_inventory_slots[i].m_text.m_position = {
-                m_position.x,
-                m_position.y
+                X_POSITION,
+                Y_POSITION
             };
 
             UpdateInventoryView();
@@ -208,17 +212,17 @@ namespace GUI
         {
             Item::Item *item = &items_in_inventory[i];
 
-            if (item->capacity <= 0)
-            {
-                items_in_inventory[i] = Item::Item{0, 0, Item::BLOCK};
+                if (item->capacity <= 0)
+                {
+                    items_in_inventory[i] = Item::Item{0, 0, Item::BLOCK};
 
-                m_inventory_slots[i].m_item_id = 0;
-            }
-            else
-            {
-                m_inventory_slots[i].m_item_id = items_in_inventory[i].item_id;
-                m_inventory_slots[i].m_item = &items_in_inventory[i];
-            }
+                    m_inventory_slots[i].m_item_id = 0;
+                }
+                else
+                {
+                    m_inventory_slots[i].m_item_id = items_in_inventory[i].item_id;
+                    m_inventory_slots[i].m_item = &items_in_inventory[i];
+                }
         }
     }
 
@@ -260,7 +264,7 @@ namespace GUI
         const int selected_slot_index = m_selected_item_slot - &m_inventory_slots[0];
         const int hovered_slot_index = m_hovered_item_slot - &m_inventory_slots[0];
 
-        if (items_in_inventory[selected_slot_index].item_id == 0) return; // TODO: look into this, might make false operations
+        if (items_in_inventory[selected_slot_index].item_id == 0) return;
 
         Item::Item tmp_item = items_in_inventory[selected_slot_index];
 

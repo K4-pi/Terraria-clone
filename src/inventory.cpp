@@ -18,4 +18,6 @@ void UpdateInventory()
     items_on_item_bar[0] = &items_in_inventory[0]; // for testing
     items_on_item_bar[1] = &items_in_inventory[1];
     items_on_item_bar[2] = &items_in_inventory[2];
+    items_on_item_bar[3] = &items_in_inventory[3];
+    items_on_item_bar[4] = &items_in_inventory[4];
 }
