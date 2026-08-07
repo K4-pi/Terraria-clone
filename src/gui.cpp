@@ -10,8 +10,6 @@
 #include <cmath>
 #include <string>
 
-#include <iostream>
-
 static constexpr float SLOT_SIZE = 64.0f;
 
 static constexpr float ICON_SIZE = 32.0f;
