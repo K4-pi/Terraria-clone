@@ -21,3 +21,25 @@ void UpdateInventory()
     items_on_item_bar[3] = &items_in_inventory[3];
     items_on_item_bar[4] = &items_in_inventory[4];
 }
+
+// TODO:
+// What if no space in inventory
+void AddItemToInvetory(int item_id)
+{
+    Item::Item *empty_slot = nullptr;
+
+    for (auto &item : items_in_inventory)
+    {
+        if (item.item_id == item_id)
+        {
+            item.capacity += 1;
+            return;
+        }
+        else if (item.item_id == 0 && empty_slot == nullptr)
+        {
+            empty_slot = &item;
+        }
+    }
+
+    *empty_slot = Item::Item{item_id, 1, Item::BLOCK};
+}

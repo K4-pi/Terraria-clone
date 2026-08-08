@@ -268,6 +268,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     }
 
     world.DrawWorld(renderer);
+    world.ManageWorldEntities(renderer, &player, delta_time);
 
     // Determine animation
     animation_t *current_animation;

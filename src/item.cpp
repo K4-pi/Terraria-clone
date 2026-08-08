@@ -15,4 +15,8 @@ namespace Item
         is_item_stackable[GRASS_BLOCK_ID] = true;
         is_item_stackable[STONE_BLOCK_ID] = true;
     }
+
+    ItemEntity::ItemEntity(vector2f_t position, vector2f_t size, int id, bool collision)
+        : DynamicEntity(position, size, id, collision)
+    {}
 }

@@ -10,6 +10,8 @@
 #include "input_state.h"
 #include "lmath.h"
 
+class World;
+
 class Player : public AnimatedSprite
 {
     protected:

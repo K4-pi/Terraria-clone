@@ -11,3 +11,4 @@ extern std::array<Item::Item, INVENTORY_CAPACITY> items_in_inventory;
 extern std::array<Item::Item*, ITEM_BAR_CAPACITY> items_on_item_bar;
 
 void UpdateInventory();
+void AddItemToInvetory(int item_id);

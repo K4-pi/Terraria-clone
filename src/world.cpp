@@ -1,17 +1,24 @@
 #include "../include/world.h"
+#include "../include/player.h"
 #include "../include/game_context.h"
 #include "../include/id.h"
 #include "../include/block.h"
 #include "../include/textures.h"
 #include "../include/simplex.h"
+#include "../include/inventory.h"
 
 #include <SDL3/SDL_log.h>
+#include <SDL3/SDL_render.h>
+
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
 
+static constexpr float PICKUP_DISTANCE = 50.0f;
+
 World::World()
-    : m_hovered_block { nullptr }
+    : m_world_entities {}
+    , m_hovered_block { nullptr }
 {}
 
 std::vector<Block> &World::GetBlocks()
@@ -125,12 +132,14 @@ void World::SetHoveredBlock(int id, bool collision)
 
 void World::DamageBlock(int item_hardness, float item_damage)
 {
-    if (m_hovered_block == nullptr || item_hardness < m_hovered_block->m_hardness) return;
+    if (m_hovered_block == nullptr || item_hardness < m_hovered_block->m_hardness || m_hovered_block->m_id == NULL_BLOCK_ID) return;
 
     m_hovered_block->m_durability -= item_damage;
 
     if (m_hovered_block->m_durability <= 0.0f)
     {
+        AddEntity(m_hovered_block->m_id, m_hovered_block->m_position);
+
         *m_hovered_block = Block(
             {m_hovered_block->m_position.x, m_hovered_block->m_position.y},
             {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
@@ -199,5 +208,36 @@ void World::DrawWorld(SDL_Renderer* renderer)
                 exit(EXIT_FAILURE);
             }
         }
+    }
+}
+
+void World::AddEntity(int id, vector2f_t position)
+{
+    const float BLOCK_SIZE = GameContext::STANDARD_BLOCK_SIZE * 0.5f;
+
+    m_world_entities.push_back(Item::ItemEntity(
+        { position.x + BLOCK_SIZE * 0.5f, position.y + BLOCK_SIZE * 0.5f },
+        { BLOCK_SIZE, BLOCK_SIZE },
+        id,
+        true
+    ));
+}
+
+void World::ManageWorldEntities(SDL_Renderer* renderer, Player *player, float delta)
+{
+    for (auto &entity : m_world_entities)
+    {
+        if (entity.GetDistanceTo(player->m_position) <= PICKUP_DISTANCE) // Pickup entity if player nearby
+        {
+            const unsigned int index = (&entity - &m_world_entities.at(0));
+
+            m_world_entities.erase(m_world_entities.begin() + index);
+
+            AddItemToInvetory(entity.m_id);
+            continue;
+        }
+
+        entity.UpdatePosition(delta, &GetBlocks());
+        entity.Draw(renderer);
     }
 }
