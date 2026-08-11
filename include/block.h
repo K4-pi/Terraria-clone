@@ -13,5 +13,6 @@ class Block : public Entity
         float m_durability;
         int m_hardness;
 
+        Block();
         Block(vector2f_t position, vector2f_t size, int id, bool collision=true);
 };

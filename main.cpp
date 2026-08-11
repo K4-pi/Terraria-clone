@@ -43,7 +43,7 @@ static SDL_FlipMode flip_mode = SDL_FLIP_NONE;
 
 static Uint64 last_tick;
 
-static Player player = Player({120.0f * 16.0f, 157.0f * 16.0f}, {30.0f, 45.0f}, 112, 200.0f, true);
+static Player player = Player({(GameContext::world_size.x / 2.0f) * 16.0f, (GameContext::world_size.y / 2.0f) * 16.0f}, {30.0f, 45.0f}, 112, 200.0f, true);
 static World world = World();
 
 static animation_t anim_player_idle;
@@ -160,14 +160,14 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
         Input::state.mouse_left_clicked = false;
     }
 
-    if (Input::state.f1 && GameContext::camera_zoom < 5.0f)
+    if (Input::state.f1 && GameContext::camera_zoom < GameContext::MAX_ZOOM)
     {
-        GameContext::camera_zoom += 1.0f;
+        GameContext::camera_zoom += 0.5f;
         Input::state.f1 = false;
     }
-    else if (Input::state.f2 && GameContext::camera_zoom > 1.0f)
+    else if (Input::state.f2 && GameContext::camera_zoom > GameContext::MIN_ZOOM)
     {
-        GameContext::camera_zoom -= 1.0f;
+        GameContext::camera_zoom -= 0.5f;
         Input::state.f2 = false;
     }
     else if (Input::state.f11)

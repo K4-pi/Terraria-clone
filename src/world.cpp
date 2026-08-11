@@ -13,8 +13,19 @@
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
+#include <vector>
 
-static constexpr float PICKUP_DISTANCE = 50.0f;
+Chunk::Chunk(std::vector<Block> chunk_blocks)
+    : m_blocks { chunk_blocks }
+    , m_center_position {}
+{
+    Block *first_block = &m_blocks.at(0);
+
+    m_center_position = {
+        .x = first_block->m_position.x + (CHUNK_SIZE.x / 2.0f) * GameContext::STANDARD_BLOCK_SIZE,
+        .y = first_block->m_position.y + (CHUNK_SIZE.y / 2.0f) * GameContext::STANDARD_BLOCK_SIZE
+    };
+}
 
 World::World()
     : m_world_entities {}
@@ -26,19 +37,55 @@ std::vector<Block> &World::GetBlocks()
     return m_blocks;
 }
 
-// Will be changed for noise world generation
+void World::GenerateChunks()
+{
+    m_chunks.clear();
+
+    const int map_width = GameContext::world_size.x;
+    const int map_height = GameContext::world_size.y;
+
+    const int chunks_x = (map_width  + CHUNK_SIZE.x - 1) / CHUNK_SIZE.x;
+    const int chunks_y = (map_height + CHUNK_SIZE.y - 1) / CHUNK_SIZE.y;
+
+    for (int cx = 0; cx < chunks_x; ++cx)
+    {
+        const int start_x = cx * CHUNK_SIZE.x;
+        const int end_x   = std::min(start_x + CHUNK_SIZE.x, map_width); // Cap edges
+
+        for (int cy = 0; cy < chunks_y; ++cy)
+        {
+            const int start_y = cy * CHUNK_SIZE.y;
+            const int end_y   = std::min(start_y + CHUNK_SIZE.y, map_height); // Cap edges
+
+            std::vector<Block> chunk_blocks;
+
+            for (int x = start_x; x < end_x; ++x)
+            {
+                for (int y = start_y; y < end_y; ++y)
+                {
+                    const int index = x + y * map_width;
+
+                    chunk_blocks.push_back(m_blocks.at(index));
+                }
+            }
+
+            m_chunks.push_back(Chunk(chunk_blocks));
+        }
+    }
+}
+
 void World::GenerateWorld(const std::uint32_t seed)
 {
     m_blocks.clear();
 
-    const int mapWidth = GameContext::world_size.x;
-    const int mapHeight = GameContext::world_size.y;
+    const int map_width = GameContext::world_size.x;
+    const int map_height = GameContext::world_size.y;
 
-    m_blocks.reserve(mapWidth * mapHeight);
+    m_blocks.reserve(map_width * map_height);
 
     const int base_height = round(GameContext::world_size.y * 0.5f);
 
-    for (int col=0; col < GameContext::world_size.x; col++)
+    for (int col=0; col < map_width; col++)
     {
         const float scale = 0.012f;
         const float gain = 0.45f;
@@ -55,7 +102,7 @@ void World::GenerateWorld(const std::uint32_t seed)
 
         float xPos = col * GameContext::STANDARD_BLOCK_SIZE;
 
-        for (int row=0; row < GameContext::world_size.y; row++)
+        for (int row=0; row < map_height; row++)
         {
             float yPos = row * GameContext::STANDARD_BLOCK_SIZE;
 
@@ -97,6 +144,8 @@ void World::GenerateWorld(const std::uint32_t seed)
             }
         }
     }
+
+    GenerateChunks();
 }
 
 void World::UpdateHoveredBlock(vector2f_t mouse_position)

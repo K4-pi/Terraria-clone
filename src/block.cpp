@@ -4,6 +4,10 @@
 
 #include <iostream>
 
+Block::Block()
+    : Entity({0.0f, 0.0f}, {0.0f, 0.0f}, 0, false)
+{}
+
 Block::Block(vector2f_t position, vector2f_t size, int id, bool collision)
     : Entity(position, size, id, collision)
 {
