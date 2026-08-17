@@ -25,7 +25,7 @@ class Player : public AnimatedSprite
         float m_max_speed;
 
         Player(vector2f_t position, vector2f_t size, int id, float max_speed, bool collision=true);
-        void MovePlayer(float delta, std::vector<Block> *blocks);
+        void MovePlayer(float delta, std::vector<Block*> *blocks);
         void HandleInput(const InputState& input_state);
         void ModifyHoverBlock(World *world, float delta);
 };

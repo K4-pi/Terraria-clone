@@ -15,5 +15,5 @@ class DynamicEntity : public Entity
 
     public:
         DynamicEntity(vector2f_t position, vector2f_t size, int id, bool collision);
-        void UpdatePosition(float delta, std::vector<Block> *blocks);
+        void UpdatePosition(float delta, std::vector<Block*> *blocks);
 };

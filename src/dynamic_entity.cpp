@@ -39,7 +39,7 @@ bool DynamicEntity::CheckCollisionY(Block *b, float delta)
     return collision_y && collision_x;
 }
 
-void DynamicEntity::UpdatePosition(float delta, std::vector<Block> *blocks)
+void DynamicEntity::UpdatePosition(float delta, std::vector<Block*> *blocks)
 {
     // const float acceleration = 1.10f;
     // const float friction     = 350.0f;
@@ -49,9 +49,9 @@ void DynamicEntity::UpdatePosition(float delta, std::vector<Block> *blocks)
 
     for (auto &block : *blocks)
     {
-        if (!block.m_collision) continue;
+        if (!block->m_collision) continue;
 
-        if (CheckCollisionY(&block, delta))
+        if (CheckCollisionY(block, delta))
         {
             m_velocity.y = 0.0f;
         }

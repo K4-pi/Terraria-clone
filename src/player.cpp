@@ -18,7 +18,7 @@ Player::Player(vector2f_t position, vector2f_t size, int id, float max_speed, bo
     , m_max_speed   { max_speed }
 {}
 
-void Player::MovePlayer(float delta, std::vector<Block> *blocks)
+void Player::MovePlayer(float delta, std::vector<Block*> *blocks)
 {
     const float acceleration = 1.10f;
     const float friction     = 350.0f;
@@ -53,21 +53,21 @@ void Player::MovePlayer(float delta, std::vector<Block> *blocks)
 
     m_velocity.y += 981.0f * delta; // gravity
 
-    for (Block &block : *blocks)
+    for (Block *block : *blocks)
     {
-        if (!block.m_collision) continue;
+        if (!block->m_collision) continue;
 
-        bool is_colliding_x = CheckCollisionX(&block, delta);
+        bool is_colliding_x = CheckCollisionX(block, delta);
 
         if (is_colliding_x)
         {
             if (m_velocity.x > 0) // Going right
             {
-                m_position.x = block.m_position.x - m_size.x;
+                m_position.x = block->m_position.x - m_size.x;
             }
             else if (m_velocity.x < 0) // Going left
             {
-                m_position.x = block.m_position.x + block.m_size.x;
+                m_position.x = block->m_position.x + block->m_size.x;
             }
 
             m_velocity.x = 0; // Zatrzymaj ruch w bok
@@ -76,22 +76,22 @@ void Player::MovePlayer(float delta, std::vector<Block> *blocks)
 
     m_position.x += m_velocity.x * delta; // Move X
 
-    for (Block &block : *blocks)
+    for (Block *block : *blocks)
     {
-        if (!block.m_collision) continue;
+        if (!block->m_collision) continue;
 
-        bool is_colliding_y = CheckCollisionY(&block, delta);
+        bool is_colliding_y = CheckCollisionY(block, delta);
 
         if (is_colliding_y)
         {
             if (m_velocity.y > 0) // Falling
             {
-                m_position.y = block.m_position.y - m_size.y;
+                m_position.y = block->m_position.y - m_size.y;
                 m_is_grounded = true;
             }
             else if (m_velocity.y < 0) // Jumping
             {
-                m_position.y = block.m_position.y + block.m_size.y;
+                m_position.y = block->m_position.y + block->m_size.y;
             }
 
             m_velocity.y = 0;

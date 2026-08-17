@@ -10,8 +10,8 @@ namespace GameContext
 {
     constexpr float STANDARD_BLOCK_SIZE = 16.0f;
     constexpr float FONT_SIZE = 24.0f;
-    constexpr float MAX_ZOOM = 3.0f;
-    constexpr float MIN_ZOOM = 1.5f;
+    constexpr float MAX_ZOOM = 5.0f;
+    constexpr float MIN_ZOOM = 1.0f;
 
     extern vector2_t BASE_RESOLUTION;
     extern vector2_t world_size;

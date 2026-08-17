@@ -249,7 +249,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     float delta_time = (current_tick - last_tick) / 1000.0f;
     last_tick = current_tick;
 
-    player.MovePlayer(delta_time, &world.GetBlocks());
+    player.MovePlayer(delta_time, &world.m_active_blocks);
 
     GameContext::UpdateCameraPosition(player.GetPosition());
 

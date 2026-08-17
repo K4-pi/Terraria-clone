@@ -28,11 +28,11 @@ static constexpr uint16_t CHUNK_RADIUS = 2;
 class Chunk
 {
     public:
-        std::vector<Block*> m_blocks;
+        std::vector<Block> m_blocks;
         vector2_t m_center_position;
 
         Chunk();
-        Chunk(std::vector<Block*> chunk_blocks);
+        Chunk(std::vector<Block> chunk_blocks);
 };
 
 static constexpr float PICKUP_DISTANCE = 50.0f;
@@ -41,17 +41,19 @@ class World
 {
     private:
         std::vector<Item::ItemEntity> m_world_entities;
-        std::vector<Block> m_blocks;
+        std::vector<Chunk*> m_active_chunks;
         std::unordered_map<vector2_t, Chunk, Vector2Hash> m_chunks;
+
+        void UpdateActiveChunks(vector2f_t player_position);
+        std::vector<Block*> GetActiveBlocks();
 
     public:
         World();
 
         Block* m_hovered_block;
+        std::vector<Block*> m_active_blocks;
 
-        std::vector<Block> &GetBlocks();
-
-        void GenerateChunks();
+        void GenerateChunks(std::vector<Block> blocks);
         void GenerateWorld(const std::uint32_t seed);
         void UpdateHoveredBlock(vector2f_t mouse_position);
         void DamageBlock(int item_hardness, float item_damage);

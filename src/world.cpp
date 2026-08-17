@@ -17,11 +17,11 @@
 
 static void DrawBlocks(SDL_Renderer *renderer, std::vector<Block*> *blocks);
 
-Chunk::Chunk(std::vector<Block*> chunk_blocks)
+Chunk::Chunk(std::vector<Block> chunk_blocks)
     : m_blocks { chunk_blocks }
     , m_center_position {}
 {
-    Block *first_block = m_blocks.at(0);
+    const Block *first_block = &m_blocks.at(0);
 
     m_center_position = {
         .x = int(first_block->m_position.x) + (CHUNK_SIZE.x / 2) * int(GameContext::STANDARD_BLOCK_SIZE),
@@ -39,12 +39,7 @@ World::World()
     , m_hovered_block { nullptr }
 {}
 
-std::vector<Block> &World::GetBlocks()
-{
-    return m_blocks;
-}
-
-void World::GenerateChunks()
+void World::GenerateChunks(std::vector<Block> blocks)
 {
     m_chunks.clear();
 
@@ -64,7 +59,7 @@ void World::GenerateChunks()
             const int start_y = cy * CHUNK_SIZE.y;
             const int end_y   = std::min(start_y + CHUNK_SIZE.y, map_height); // Cap edges
 
-            std::vector<Block*> chunk_blocks;
+            std::vector<Block> chunk_blocks;
 
             for (int x = start_x; x < end_x; ++x)
             {
@@ -72,7 +67,7 @@ void World::GenerateChunks()
                 {
                     const int index = x + y * map_width;
 
-                    chunk_blocks.push_back(&m_blocks.at(index));
+                    chunk_blocks.push_back(blocks.at(index));
                 }
             }
 
@@ -84,12 +79,12 @@ void World::GenerateChunks()
 
 void World::GenerateWorld(const std::uint32_t seed)
 {
-    m_blocks.clear();
+    std::vector<Block> blocks;
 
     const int map_width = GameContext::world_size.x;
     const int map_height = GameContext::world_size.y;
 
-    m_blocks.reserve(map_width * map_height);
+    blocks.reserve(map_width * map_height);
 
     const int base_height = round(GameContext::world_size.y * 0.5f);
 
@@ -116,7 +111,7 @@ void World::GenerateWorld(const std::uint32_t seed)
 
             if (row < surface)
             {
-                m_blocks.push_back(Block(
+                blocks.push_back(Block(
                     {xPos, yPos},
                     {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
                     NULL_BLOCK_ID,
@@ -125,7 +120,7 @@ void World::GenerateWorld(const std::uint32_t seed)
             }
             else if (row > surface && row < stone_surface)
             {
-                m_blocks.push_back(Block(
+                blocks.push_back(Block(
                     {xPos, yPos},
                     {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
                     DIRT_BLOCK_ID,
@@ -134,7 +129,7 @@ void World::GenerateWorld(const std::uint32_t seed)
             }
             else if (row == surface)
             {
-                m_blocks.push_back(Block(
+                blocks.push_back(Block(
                     {xPos, yPos},
                     {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
                     GRASS_BLOCK_ID,
@@ -143,7 +138,7 @@ void World::GenerateWorld(const std::uint32_t seed)
             }
             else
             {
-                m_blocks.push_back(Block(
+                blocks.push_back(Block(
                     {xPos, yPos},
                     {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
                     STONE_BLOCK_ID,
@@ -153,7 +148,7 @@ void World::GenerateWorld(const std::uint32_t seed)
         }
     }
 
-    GenerateChunks();
+    GenerateChunks(blocks);
 }
 
 void World::UpdateHoveredBlock(vector2f_t mouse_position)
@@ -165,16 +160,16 @@ void World::UpdateHoveredBlock(vector2f_t mouse_position)
         mouse_position.y / GameContext::camera_zoom
     };
 
-    for (Block &current_block : m_blocks)
+    for (Block *current_block : m_active_blocks)
     {
-        bool hover_x = std::fmax(std::fmin(real_position.x, current_block.m_position.x + current_block.m_size.x - GameContext::camera.x), current_block.m_position.x - GameContext::camera.x) == real_position.x;
-        bool hover_y = std::fmax(std::fmin(real_position.y, current_block.m_position.y + current_block.m_size.y - GameContext::camera.y), current_block.m_position.y - GameContext::camera.y) == real_position.y;
+        bool hover_x = std::fmax(std::fmin(real_position.x, current_block->m_position.x + current_block->m_size.x - GameContext::camera.x), current_block->m_position.x - GameContext::camera.x) == real_position.x;
+        bool hover_y = std::fmax(std::fmin(real_position.y, current_block->m_position.y + current_block->m_size.y - GameContext::camera.y), current_block->m_position.y - GameContext::camera.y) == real_position.y;
 
-        current_block.m_hovered = hover_x && hover_y;
+        current_block->m_hovered = hover_x && hover_y;
 
-        if (current_block.m_hovered)
+        if (current_block->m_hovered)
         {
-            m_hovered_block = &current_block;
+            m_hovered_block = current_block;
         }
     }
 }
@@ -216,6 +211,50 @@ void World::PlaceBlock(int block_id)
         block_id,
         true
     );
+}
+
+void World::UpdateActiveChunks(vector2f_t player_position)
+{
+    const int CHUNK_WORLD_WIDTH = static_cast<int>(CHUNK_SIZE.x * GameContext::STANDARD_BLOCK_SIZE);
+    const int CHUNK_WORLD_HEIGHT = static_cast<int>(CHUNK_SIZE.y * GameContext::STANDARD_BLOCK_SIZE);
+
+    const int center_x = (static_cast<int>(player_position.x) / CHUNK_WORLD_WIDTH) * CHUNK_WORLD_WIDTH + CHUNK_WORLD_WIDTH / 2;
+    const int center_y = (static_cast<int>(player_position.y) / CHUNK_WORLD_HEIGHT) * CHUNK_WORLD_HEIGHT + CHUNK_WORLD_HEIGHT / 2;
+
+    m_active_chunks.clear();
+
+    for (int cx = -CHUNK_RADIUS; cx <= CHUNK_RADIUS; ++cx)
+    {
+        for (int cy = -CHUNK_RADIUS; cy <= CHUNK_RADIUS; ++cy)
+        {
+            const vector2_t key = {
+                .x = center_x + cx * CHUNK_WORLD_WIDTH,
+                .y = center_y + cy * CHUNK_WORLD_HEIGHT
+            };
+
+            const auto it = m_chunks.find(key);
+            if (it == m_chunks.end()) continue;
+
+            m_active_chunks.push_back(&it->second);
+        }
+    }
+
+    m_active_blocks.clear();
+    m_active_blocks = GetActiveBlocks();
+}
+
+std::vector<Block*> World::GetActiveBlocks()
+{
+    std::vector<Block*> v;
+    for (Chunk *chunk : m_active_chunks)
+    {
+        for (Block &b : chunk->m_blocks)
+        {
+            v.push_back(&b);
+        }
+    }
+
+    return v;
 }
 
 static void DrawBlocks(SDL_Renderer *renderer, std::vector<Block*> *blocks)
@@ -269,33 +308,9 @@ static void DrawBlocks(SDL_Renderer *renderer, std::vector<Block*> *blocks)
 
 void World::DrawWorld(SDL_Renderer* renderer, vector2f_t player_position)
 {
-    const int CHUNK_WORLD_WIDTH = static_cast<int>(CHUNK_SIZE.x * GameContext::STANDARD_BLOCK_SIZE);
-    const int CHUNK_WORLD_HEIGHT = static_cast<int>(CHUNK_SIZE.y * GameContext::STANDARD_BLOCK_SIZE);
+    UpdateActiveChunks(player_position);
 
-    const int center_x = (static_cast<int>(player_position.x) / CHUNK_WORLD_WIDTH) * CHUNK_WORLD_WIDTH + CHUNK_WORLD_WIDTH / 2;
-    const int center_y = (static_cast<int>(player_position.y) / CHUNK_WORLD_HEIGHT) * CHUNK_WORLD_HEIGHT + CHUNK_WORLD_HEIGHT / 2;
-
-    m_blocks.clear();
-
-    for (int cx = -CHUNK_RADIUS; cx <= CHUNK_RADIUS; ++cx)
-    {
-        for (int cy = -CHUNK_RADIUS; cy <= CHUNK_RADIUS; ++cy)
-        {
-            const vector2_t key = {
-                .x = center_x + cx * CHUNK_WORLD_WIDTH,
-                .y = center_y + cy * CHUNK_WORLD_HEIGHT
-            };
-
-            const auto it = m_chunks.find(key);
-            if (it == m_chunks.end()) continue;
-
-            std::vector<Block*> *v = &it->second.m_blocks;
-
-            for (Block *b : *v) m_blocks.push_back(*b);
-
-            DrawBlocks(renderer, v);
-        }
-    }
+    DrawBlocks(renderer, &m_active_blocks);
 }
 
 void World::AddEntity(int id, vector2f_t position)
@@ -324,7 +339,7 @@ void World::ManageWorldEntities(SDL_Renderer* renderer, Player *player, float de
             continue;
         }
 
-        entity.UpdatePosition(delta, &GetBlocks());
+        entity.UpdatePosition(delta, &m_active_blocks);
         entity.Draw(renderer);
     }
 }
