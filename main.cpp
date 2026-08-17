@@ -21,7 +21,6 @@
 #include <cstdio>
 #include <cstddef>
 #include <cstdlib>
-#include <vector>
 
 #include "include/input_state.h"
 #include "include/textures.h"
@@ -250,7 +249,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     float delta_time = (current_tick - last_tick) / 1000.0f;
     last_tick = current_tick;
 
-    player.MovePlayer(delta_time, world.GetBlocks());
+    player.MovePlayer(delta_time, &world.GetBlocks());
 
     GameContext::UpdateCameraPosition(player.GetPosition());
 
@@ -267,7 +266,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         inventory.UpdateInventoryView();
     }
 
-    world.DrawWorld(renderer);
+    world.DrawWorld(renderer, player.m_position);
     world.ManageWorldEntities(renderer, &player, delta_time);
 
     // Determine animation

@@ -1,13 +1,18 @@
 #pragma once
 
-typedef struct {
+struct vector2f_t {
     float x, y;
-} vector2f_t;
+};
 
-typedef struct {
+struct vector2_t {
     int x, y;
-} vector2_t;
 
-typedef struct {
+    bool operator == (const vector2_t &other) const
+    {
+        return x == other.x && y == other.y;
+    }
+};
+
+struct texture_coordinates_t {
     float x, y, w, h;
-} texture_coordinates_t;  // Used for one place store of texture position in file
+};  // Used for one place store of texture position in file

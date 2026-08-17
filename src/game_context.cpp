@@ -3,7 +3,7 @@
 namespace GameContext
 {
     vector2_t BASE_RESOLUTION = { 1920, 1080 };
-    vector2_t world_size = { 312, 312 };
+    vector2_t world_size = { 1024, 1024 };
     vector2f_t camera = { 0.0f, 0.0f };
     vector2f_t mouse_position = { 0.0f, 0.0f };
 

@@ -15,17 +15,24 @@
 #include <cstdlib>
 #include <vector>
 
-Chunk::Chunk(std::vector<Block> chunk_blocks)
+static void DrawBlocks(SDL_Renderer *renderer, std::vector<Block*> *blocks);
+
+Chunk::Chunk(std::vector<Block*> chunk_blocks)
     : m_blocks { chunk_blocks }
     , m_center_position {}
 {
-    Block *first_block = &m_blocks.at(0);
+    Block *first_block = m_blocks.at(0);
 
     m_center_position = {
-        .x = first_block->m_position.x + (CHUNK_SIZE.x / 2.0f) * GameContext::STANDARD_BLOCK_SIZE,
-        .y = first_block->m_position.y + (CHUNK_SIZE.y / 2.0f) * GameContext::STANDARD_BLOCK_SIZE
+        .x = int(first_block->m_position.x) + (CHUNK_SIZE.x / 2) * int(GameContext::STANDARD_BLOCK_SIZE),
+        .y = int(first_block->m_position.y) + (CHUNK_SIZE.y / 2) * int(GameContext::STANDARD_BLOCK_SIZE)
     };
 }
+
+Chunk::Chunk()
+    : m_blocks {}
+    , m_center_position {}
+{}
 
 World::World()
     : m_world_entities {}
@@ -57,7 +64,7 @@ void World::GenerateChunks()
             const int start_y = cy * CHUNK_SIZE.y;
             const int end_y   = std::min(start_y + CHUNK_SIZE.y, map_height); // Cap edges
 
-            std::vector<Block> chunk_blocks;
+            std::vector<Block*> chunk_blocks;
 
             for (int x = start_x; x < end_x; ++x)
             {
@@ -65,11 +72,12 @@ void World::GenerateChunks()
                 {
                     const int index = x + y * map_width;
 
-                    chunk_blocks.push_back(m_blocks.at(index));
+                    chunk_blocks.push_back(&m_blocks.at(index));
                 }
             }
 
-            m_chunks.push_back(Chunk(chunk_blocks));
+            Chunk chunk = Chunk(chunk_blocks);
+            m_chunks[{chunk.m_center_position.x, chunk.m_center_position.y}] = chunk; // Save chunk in hash map using position as key
         }
     }
 }
@@ -210,26 +218,25 @@ void World::PlaceBlock(int block_id)
     );
 }
 
-// Will be changed to draw chunks
-void World::DrawWorld(SDL_Renderer* renderer)
+static void DrawBlocks(SDL_Renderer *renderer, std::vector<Block*> *blocks)
 {
-    for (Block &current_block : m_blocks)
+    for (Block *current_block : *blocks)
     {
-        current_block.Draw(renderer);
+        current_block->Draw(renderer);
 
-        if (current_block.m_durability != current_block.m_base_durability)
+        if (current_block->m_durability != current_block->m_base_durability)
         {
             texture_coordinates_t texture_source;
 
-            if (current_block.m_durability <= current_block.m_base_durability * 0.25f)
+            if (current_block->m_durability <= current_block->m_base_durability * 0.25f)
             {
                 texture_source = id_to_texture_dict[CRACK_LVL_3];
             }
-            else if (current_block.m_durability <= current_block.m_base_durability * 0.5f)
+            else if (current_block->m_durability <= current_block->m_base_durability * 0.5f)
             {
                 texture_source = id_to_texture_dict[CRACK_LVL_2];
             }
-            else if (current_block.m_durability < current_block.m_base_durability)
+            else if (current_block->m_durability < current_block->m_base_durability)
             {
                 texture_source = id_to_texture_dict[CRACK_LVL_1];
             }
@@ -242,13 +249,13 @@ void World::DrawWorld(SDL_Renderer* renderer)
                 .h = texture_source.h,
             };
 
-            vector2f_t position_on_screen = current_block.GetPositionOnScreen();
+            vector2f_t position_on_screen = current_block->GetPositionOnScreen();
 
             SDL_FRect dest_rect = {
                 .x = position_on_screen.x,
                 .y = position_on_screen.y,
-                .w = current_block.m_size.x * GameContext::camera_zoom,
-                .h = current_block.m_size.y * GameContext::camera_zoom,
+                .w = current_block->m_size.x * GameContext::camera_zoom,
+                .h = current_block->m_size.y * GameContext::camera_zoom,
             };
 
             if (!SDL_RenderTexture(renderer, TEXTURES_TILEMAP, &src_rect, &dest_rect))
@@ -256,6 +263,37 @@ void World::DrawWorld(SDL_Renderer* renderer)
                 SDL_Log("Failed to draw Entity: %s", SDL_GetError());
                 exit(EXIT_FAILURE);
             }
+        }
+    }
+}
+
+void World::DrawWorld(SDL_Renderer* renderer, vector2f_t player_position)
+{
+    const int CHUNK_WORLD_WIDTH = static_cast<int>(CHUNK_SIZE.x * GameContext::STANDARD_BLOCK_SIZE);
+    const int CHUNK_WORLD_HEIGHT = static_cast<int>(CHUNK_SIZE.y * GameContext::STANDARD_BLOCK_SIZE);
+
+    const int center_x = (static_cast<int>(player_position.x) / CHUNK_WORLD_WIDTH) * CHUNK_WORLD_WIDTH + CHUNK_WORLD_WIDTH / 2;
+    const int center_y = (static_cast<int>(player_position.y) / CHUNK_WORLD_HEIGHT) * CHUNK_WORLD_HEIGHT + CHUNK_WORLD_HEIGHT / 2;
+
+    m_blocks.clear();
+
+    for (int cx = -CHUNK_RADIUS; cx <= CHUNK_RADIUS; ++cx)
+    {
+        for (int cy = -CHUNK_RADIUS; cy <= CHUNK_RADIUS; ++cy)
+        {
+            const vector2_t key = {
+                .x = center_x + cx * CHUNK_WORLD_WIDTH,
+                .y = center_y + cy * CHUNK_WORLD_HEIGHT
+            };
+
+            const auto it = m_chunks.find(key);
+            if (it == m_chunks.end()) continue;
+
+            std::vector<Block*> *v = &it->second.m_blocks;
+
+            for (Block *b : *v) m_blocks.push_back(*b);
+
+            DrawBlocks(renderer, v);
         }
     }
 }

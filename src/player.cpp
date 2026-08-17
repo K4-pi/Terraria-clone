@@ -18,7 +18,7 @@ Player::Player(vector2f_t position, vector2f_t size, int id, float max_speed, bo
     , m_max_speed   { max_speed }
 {}
 
-void Player::MovePlayer(float delta, std::vector<Block> b)
+void Player::MovePlayer(float delta, std::vector<Block> *blocks)
 {
     const float acceleration = 1.10f;
     const float friction     = 350.0f;
@@ -53,7 +53,7 @@ void Player::MovePlayer(float delta, std::vector<Block> b)
 
     m_velocity.y += 981.0f * delta; // gravity
 
-    for (Block block : b)
+    for (Block &block : *blocks)
     {
         if (!block.m_collision) continue;
 
@@ -76,7 +76,7 @@ void Player::MovePlayer(float delta, std::vector<Block> b)
 
     m_position.x += m_velocity.x * delta; // Move X
 
-    for (Block block : b)
+    for (Block &block : *blocks)
     {
         if (!block.m_collision) continue;
 
