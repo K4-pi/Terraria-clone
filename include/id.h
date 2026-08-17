@@ -2,10 +2,18 @@
 
 // GUI - Gui have it's own map so id numbers can be reused
 
-constexpr int NULL_GUI_ID = 0;
-constexpr int ITEM_SLOT_ID = 1;
-constexpr int SELECTED_ITEM_SLOT_ID = 2;
-constexpr int HOVERED_ITEM_SLOT_ID = 3;
+constexpr unsigned int NULL_GUI_ID = 0;
+constexpr unsigned int ITEM_SLOT_ID = 1;
+constexpr unsigned int SELECTED_ITEM_SLOT_ID = 2;
+constexpr unsigned int HOVERED_ITEM_SLOT_ID = 3;
+
+// HEARTS
+constexpr unsigned int HEART_LVL_1_ID = 4;
+constexpr unsigned int HEART_LVL_2_ID = 5;
+constexpr unsigned int HEART_LVL_3_ID = 6;
+constexpr unsigned int HEART_LVL_4_ID = 7;
+
+//=========================================================
 
 // BLOCK STATUS
 constexpr int CRACK_LVL_1 = -1;

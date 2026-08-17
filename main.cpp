@@ -31,6 +31,7 @@
 #include "include/input.h"
 #include "include/animation.h"
 #include "include/gui.h"
+#include "include/healthbar.h"
 
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
@@ -42,8 +43,20 @@ static SDL_FlipMode flip_mode = SDL_FLIP_NONE;
 
 static Uint64 last_tick;
 
-static Player player = Player({(GameContext::world_size.x / 2.0f) * 16.0f, (GameContext::world_size.y / 2.0f) * 16.0f}, {30.0f, 45.0f}, 112, 200.0f, true);
+constexpr int PLAYER_START_HP = 50;
+
+static Player player = Player(
+    {(GameContext::world_size.x / 2.0f) * 16.0f, (GameContext::world_size.y / 2.0f) * 16.0f}, // position
+    {30.0f, 45.0f},  // size
+    112,             // id
+    PLAYER_START_HP, // health
+    200.0f,          // max speed
+    true             // collision
+);
+
 static World world = World();
+
+static Healthbar healthbar = Healthbar({16.0f, 16.0f}, PLAYER_START_HP);
 
 static animation_t anim_player_idle;
 static animation_t anim_player_walk;
@@ -266,6 +279,8 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         inventory.UpdateInventoryView();
     }
 
+    healthbar.Update(player.m_health);
+
     world.DrawWorld(renderer, player.m_position);
     world.ManageWorldEntities(renderer, &player, delta_time);
 
@@ -292,6 +307,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     player.Draw(renderer, flip_mode, current_animation, delta_time);
 
     item_bar.Display(renderer);
+    healthbar.Draw(renderer);
 
     if (show_invetory) inventory.Display(renderer);
 

@@ -11,11 +11,16 @@
 #include <vector>
 #include <cmath>
 
-Player::Player(vector2f_t position, vector2f_t size, int id, float max_speed, bool collision)
+constexpr float SAFE_VELOCITY = 3.0f;
+
+static float fall_damage_velocity = 0.0f;
+
+Player::Player(vector2f_t position, vector2f_t size, int id, int health, float max_speed, bool collision)
     : AnimatedSprite(position, size, id, collision)
     , m_direction   { 0, 0 }
     , m_is_grounded { false }
     , m_max_speed   { max_speed }
+    , m_health      { health }
 {}
 
 void Player::MovePlayer(float delta, std::vector<Block*> *blocks)
@@ -88,6 +93,8 @@ void Player::MovePlayer(float delta, std::vector<Block*> *blocks)
             {
                 m_position.y = block->m_position.y - m_size.y;
                 m_is_grounded = true;
+
+                if (fall_damage_velocity >= SAFE_VELOCITY) m_health -= fall_damage_velocity * 0.50f; // Fall damage
             }
             else if (m_velocity.y < 0) // Jumping
             {
@@ -97,6 +104,8 @@ void Player::MovePlayer(float delta, std::vector<Block*> *blocks)
             m_velocity.y = 0;
         }
     }
+
+    fall_damage_velocity = m_velocity.y * delta;
 
     m_position.y += m_velocity.y * delta; // Move Y
 }
@@ -122,6 +131,8 @@ void Player::HandleInput(const InputState& input_state)
         {
             m_velocity.y = -400.0f;
             m_is_grounded = false;
+
+            fall_damage_velocity = 0.0f; // When we jump we reset fall damage
         }
     }
 }

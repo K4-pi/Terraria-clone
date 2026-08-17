@@ -23,8 +23,9 @@ class Player : public AnimatedSprite
         vector2_t m_direction;
         bool m_is_grounded;
         float m_max_speed;
+        int m_health;
 
-        Player(vector2f_t position, vector2f_t size, int id, float max_speed, bool collision=true);
+        Player(vector2f_t position, vector2f_t size, int id, int health, float max_speed, bool collision=true);
         void MovePlayer(float delta, std::vector<Block*> *blocks);
         void HandleInput(const InputState& input_state);
         void ModifyHoverBlock(World *world, float delta);
