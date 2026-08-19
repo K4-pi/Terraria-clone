@@ -33,19 +33,19 @@
 #include "include/gui.h"
 #include "include/healthbar.h"
 
-static SDL_Window *window = NULL;
-static SDL_Renderer *renderer = NULL;
+SDL_Window *window = NULL;
+SDL_Renderer *renderer = NULL;
 
-static bool is_window_fullscreen = false;
-static bool show_invetory = false;
+bool is_window_fullscreen = false;
+bool show_invetory = false;
 
-static SDL_FlipMode flip_mode = SDL_FLIP_NONE;
+SDL_FlipMode flip_mode = SDL_FLIP_NONE;
 
-static Uint64 last_tick;
+Uint64 last_tick;
 
 constexpr int PLAYER_START_HP = 50;
 
-static Player player = Player(
+Player player = Player(
     {(GameContext::world_size.x / 2.0f) * 16.0f, (GameContext::world_size.y / 2.0f) * 16.0f}, // position
     {30.0f, 45.0f},  // size
     112,             // id
@@ -54,21 +54,21 @@ static Player player = Player(
     true             // collision
 );
 
-static World world = World();
+World world = World();
 
-static Healthbar healthbar = Healthbar({16.0f, 16.0f}, PLAYER_START_HP);
+Healthbar healthbar = Healthbar({16.0f, 16.0f}, PLAYER_START_HP);
 
-static animation_t anim_player_idle;
-static animation_t anim_player_walk;
-static animation_t anim_player_jump;
+animation_t anim_player_idle;
+animation_t anim_player_walk;
+animation_t anim_player_jump;
 
 // Offsets to display in the middle of the screen
-static GUI::ItemBar item_bar = GUI::ItemBar({
+GUI::ItemBar item_bar = GUI::ItemBar({
     GameContext::camera.x + GameContext::BASE_RESOLUTION.x * 0.5f - 160,
     GameContext::camera.y + GameContext::BASE_RESOLUTION.y - 120
 });
 
-static GUI::Inventory inventory = GUI::Inventory({
+GUI::Inventory inventory = GUI::Inventory({
     GameContext::camera.x + GameContext::BASE_RESOLUTION.x * 0.5f - 160,
     GameContext::camera.y + GameContext::BASE_RESOLUTION.y * 0.5f - 160
 });

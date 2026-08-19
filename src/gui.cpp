@@ -10,12 +10,12 @@
 #include <cmath>
 #include <string>
 
-static constexpr float SLOT_SIZE = 64.0f;
+constexpr float SLOT_SIZE = 64.0f;
 
-static constexpr float ICON_SIZE = 32.0f;
-static constexpr float ICON_OFFSET = ICON_SIZE * 0.5f;
+constexpr float ICON_SIZE = 32.0f;
+constexpr float ICON_OFFSET = ICON_SIZE * 0.5f;
 
-static constexpr float INVETORY_SLOTS_OFFSET = 4.0f;
+constexpr float INVETORY_SLOTS_OFFSET = 4.0f;
 
 namespace GUI
 {

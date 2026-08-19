@@ -20,9 +20,12 @@ constexpr int CRACK_LVL_1 = -1;
 constexpr int CRACK_LVL_2 = -2;
 constexpr int CRACK_LVL_3 = -3;
 
+constexpr int HOVER_BLOCK_ID = -4;
+
 // BLOCKS
 constexpr int NULL_BLOCK_ID  = 0;
 constexpr int DIRT_BLOCK_ID  = 1;
 constexpr int GRASS_BLOCK_ID = 2;
 constexpr int STONE_BLOCK_ID = 3;
-constexpr int HOVER_BLOCK_ID = 4;
+constexpr int WOOD_BLOCK_ID  = 4;
+constexpr int WOODEN_POLE_ID = 5;

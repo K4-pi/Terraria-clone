@@ -37,7 +37,7 @@ void Healthbar::Draw(SDL_Renderer *renderer)
 
 void Healthbar::Update(int hp)
 {
-    if (m_hearts.size() == 0 && hp == m_old_hp) return;
+    if (m_hearts.size() == 0 || hp == m_old_hp) return;
 
     m_old_hp = hp;
     int hp_val = hp;

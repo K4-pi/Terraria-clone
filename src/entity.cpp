@@ -50,14 +50,14 @@ void Entity::Draw(SDL_Renderer *renderer, SDL_FlipMode flip, float angle)
 // Position with pivot in center
 vector2f_t Entity::GetPosition()
 {
-    return 
+    return
     {
         m_position.x + m_size.x * 0.5f,
         m_position.y + m_size.y * 0.5f
     };
 }
 
-vector2f_t Entity::GetPositionOnScreen() 
+vector2f_t Entity::GetPositionOnScreen()
 {
     return
     {

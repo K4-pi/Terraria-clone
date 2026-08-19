@@ -37,24 +37,24 @@ std::array<std::uint8_t, 512> gPerm = {};
 
 bool gInitialized = false;
 
-static int FastFloor(const float value);
-static float Dot2(const std::array<int, 3>& gradient, const float x, const float y);
-static void BuildPermutation(const std::uint32_t seed);
-static float Noise2D(const float xin, const float yin, const std::uint32_t seed);
-static float Fractal2D(const float x, const float y, const int octaves, const float lacunarity, const float gain, const std::uint32_t seed);
+int FastFloor(const float value);
+float Dot2(const std::array<int, 3>& gradient, const float x, const float y);
+void BuildPermutation(const std::uint32_t seed);
+float Noise2D(const float xin, const float yin, const std::uint32_t seed);
+float Fractal2D(const float x, const float y, const int octaves, const float lacunarity, const float gain, const std::uint32_t seed);
 
-static int FastFloor(const float value)
+int FastFloor(const float value)
 {
     const int integer = static_cast<int>(value);
     return (value < static_cast<float>(integer)) ? (integer - 1) : integer;
 }
 
-static float Dot2(const std::array<int, 3>& gradient, const float x, const float y)
+float Dot2(const std::array<int, 3>& gradient, const float x, const float y)
 {
     return static_cast<float>(gradient[0]) * x + static_cast<float>(gradient[1]) * y;
 }
 
-static void BuildPermutation(const std::uint32_t seed)
+void BuildPermutation(const std::uint32_t seed)
 {
     std::array<std::uint8_t, 256> source = {};
     std::iota(source.begin(), source.end(), static_cast<std::uint8_t>(0));
@@ -70,7 +70,7 @@ static void BuildPermutation(const std::uint32_t seed)
     gInitialized = true;
 }
 
-static float Noise2D(const float xin, const float yin, const std::uint32_t seed)
+float Noise2D(const float xin, const float yin, const std::uint32_t seed)
 {
     if (!gInitialized)
     {
@@ -137,7 +137,7 @@ static float Noise2D(const float xin, const float yin, const std::uint32_t seed)
     return 70.0f * (n0 + n1 + n2);
 }
 
-static float Fractal2D(
+float Fractal2D(
     const float x,
     const float y,
     const int octaves,

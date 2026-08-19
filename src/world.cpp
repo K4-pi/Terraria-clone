@@ -15,7 +15,7 @@
 #include <cstdlib>
 #include <vector>
 
-static void DrawBlocks(SDL_Renderer *renderer, std::vector<Block*> *blocks);
+void DrawBlocks(SDL_Renderer *renderer, std::vector<Block*> *blocks);
 
 Chunk::Chunk(std::vector<Block> chunk_blocks)
     : m_blocks { chunk_blocks }
@@ -257,7 +257,7 @@ std::vector<Block*> World::GetActiveBlocks()
     return v;
 }
 
-static void DrawBlocks(SDL_Renderer *renderer, std::vector<Block*> *blocks)
+void DrawBlocks(SDL_Renderer *renderer, std::vector<Block*> *blocks)
 {
     for (Block *current_block : *blocks)
     {

@@ -13,7 +13,7 @@
 
 constexpr float SAFE_VELOCITY = 3.0f;
 
-static float fall_damage_velocity = 0.0f;
+float fall_damage_velocity = 0.0f;
 
 Player::Player(vector2f_t position, vector2f_t size, int id, int health, float max_speed, bool collision)
     : AnimatedSprite(position, size, id, collision)
