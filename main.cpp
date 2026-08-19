@@ -21,6 +21,7 @@
 #include <cstdio>
 #include <cstddef>
 #include <cstdlib>
+#include <ctime>
 
 #include "include/input_state.h"
 #include "include/textures.h"
@@ -134,7 +135,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         .frame_count = 2,
     };
 
-    world.GenerateWorld(964);
+    srand(time(0));
+    int seed = rand() % 1000;
+
+    world.GenerateWorld(seed);
 
     item_bar.UpdateItemBar();
 
