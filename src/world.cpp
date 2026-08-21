@@ -112,7 +112,7 @@ void World::GenerateWorld(const std::uint32_t seed)
 
         if (r_num == 1) // Generate tree
         {
-            tree_size = (rand() % 16) + 8; // 8..16
+            tree_size = (rand() % 12) + 8; // 8..12
         }
 
         for (int row=0; row < map_height; row++)
@@ -139,7 +139,7 @@ void World::GenerateWorld(const std::uint32_t seed)
                         blocks.push_back(Block(
                             {xPos, yPos},
                             {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
-                            WOODEN_POLE_ID,
+                            WOOD_LOG_ID,
                             false
                         ));
                     }
@@ -174,6 +174,32 @@ void World::GenerateWorld(const std::uint32_t seed)
             }
             else
             {
+                const int rand_num = rand() % 10;
+
+                if (rand_num == 1)
+                {
+                    if (row >= surface + 30.0f)
+                    {
+                        blocks.push_back(Block(
+                            {xPos, yPos},
+                            {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
+                            COPPER_ORE_ID,
+                            true
+                        ));
+                        continue;
+                    }
+                    else if (row >= surface + 15.0f)
+                    {
+                        blocks.push_back(Block(
+                            {xPos, yPos},
+                            {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
+                            COAL_ORE_ID,
+                            true
+                        ));
+                        continue;
+                    }
+                }
+
                 blocks.push_back(Block(
                     {xPos, yPos},
                     {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
