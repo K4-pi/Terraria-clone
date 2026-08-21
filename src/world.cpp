@@ -3,9 +3,9 @@
 #include "../include/game_context.h"
 #include "../include/id.h"
 #include "../include/block.h"
-#include "../include/textures.h"
 #include "../include/simplex.h"
 #include "../include/inventory.h"
+#include "../include/blocks_def.h"
 
 #include <SDL3/SDL_log.h>
 #include <SDL3/SDL_render.h>
@@ -88,6 +88,8 @@ void World::GenerateWorld(const std::uint32_t seed)
 
     const int base_height = round(GameContext::world_size.y * 0.5f);
 
+    srand(seed);
+
     for (int col=0; col < map_width; col++)
     {
         const float scale = 0.012f;
@@ -105,18 +107,52 @@ void World::GenerateWorld(const std::uint32_t seed)
 
         float xPos = col * GameContext::STANDARD_BLOCK_SIZE;
 
+        int tree_size = 0;
+        int r_num = rand() % 5;
+
+        if (r_num == 1) // Generate tree
+        {
+            tree_size = (rand() % 16) + 8; // 8..16
+        }
+
         for (int row=0; row < map_height; row++)
         {
             float yPos = row * GameContext::STANDARD_BLOCK_SIZE;
 
             if (row < surface)
             {
-                blocks.push_back(Block(
-                    {xPos, yPos},
-                    {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
-                    NULL_BLOCK_ID,
-                    false
-                ));
+                const int TREE_INDEX = surface - tree_size;
+
+                if (tree_size != 0 && row >= TREE_INDEX) // tree_size != 0 means that rand for tree gen was true
+                {
+                    if (row == TREE_INDEX)
+                    {
+                        blocks.push_back(Block(
+                            {xPos - 16.0f, yPos - 16.0f},
+                            {48.0f, 48.0f},
+                            TREE_LEAFS_ID,
+                            true
+                        ));
+                    }
+                    else
+                    {
+                        blocks.push_back(Block(
+                            {xPos, yPos},
+                            {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
+                            WOODEN_POLE_ID,
+                            false
+                        ));
+                    }
+                }
+                else
+                {
+                    blocks.push_back(Block(
+                        {xPos, yPos},
+                        {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
+                        NULL_BLOCK_ID,
+                        false
+                    ));
+                }
             }
             else if (row > surface && row < stone_surface)
             {
@@ -205,11 +241,13 @@ void World::PlaceBlock(int block_id)
 {
     if (m_hovered_block == nullptr || m_hovered_block->m_id != NULL_BLOCK_ID) return;
 
+    bool block_collision = (BLOCKS_STATS[block_id].layer == 1);
+
     *m_hovered_block = Block(
         {m_hovered_block->m_position.x, m_hovered_block->m_position.y},
         {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
         block_id,
-        true
+        block_collision
     );
 }
 
@@ -259,50 +297,24 @@ std::vector<Block*> World::GetActiveBlocks()
 
 void DrawBlocks(SDL_Renderer *renderer, std::vector<Block*> *blocks)
 {
+    // This layer draw function will be changed IF there will be more layers than 2
+
+    std::vector<Block*> first_layer_blocks; // We will first draw second layer and then first one
+
     for (Block *current_block : *blocks)
     {
-        current_block->Draw(renderer);
-
-        if (current_block->m_durability != current_block->m_base_durability)
+        if (current_block->m_layer == 1) // We add block and skip to next iteration
         {
-            texture_coordinates_t texture_source;
-
-            if (current_block->m_durability <= current_block->m_base_durability * 0.25f)
-            {
-                texture_source = id_to_texture_dict[CRACK_LVL_3];
-            }
-            else if (current_block->m_durability <= current_block->m_base_durability * 0.5f)
-            {
-                texture_source = id_to_texture_dict[CRACK_LVL_2];
-            }
-            else if (current_block->m_durability < current_block->m_base_durability)
-            {
-                texture_source = id_to_texture_dict[CRACK_LVL_1];
-            }
-            else continue;
-
-            SDL_FRect src_rect = {
-                .x = texture_source.x,
-                .y = texture_source.y,
-                .w = texture_source.w,
-                .h = texture_source.h,
-            };
-
-            vector2f_t position_on_screen = current_block->GetPositionOnScreen();
-
-            SDL_FRect dest_rect = {
-                .x = position_on_screen.x,
-                .y = position_on_screen.y,
-                .w = current_block->m_size.x * GameContext::camera_zoom,
-                .h = current_block->m_size.y * GameContext::camera_zoom,
-            };
-
-            if (!SDL_RenderTexture(renderer, TEXTURES_TILEMAP, &src_rect, &dest_rect))
-            {
-                SDL_Log("Failed to draw Entity: %s", SDL_GetError());
-                exit(EXIT_FAILURE);
-            }
+            first_layer_blocks.push_back(current_block);
+            continue;
         }
+
+        current_block->Draw(renderer);
+    }
+
+    for (Block *current_block : first_layer_blocks)
+    {
+        current_block->Draw(renderer);
     }
 }
 

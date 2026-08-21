@@ -29,3 +29,4 @@ constexpr int GRASS_BLOCK_ID = 2;
 constexpr int STONE_BLOCK_ID = 3;
 constexpr int WOOD_BLOCK_ID  = 4;
 constexpr int WOODEN_POLE_ID = 5;
+constexpr int TREE_LEAFS_ID  = 6;

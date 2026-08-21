@@ -49,6 +49,7 @@ int LoadTexturesFromFile(SDL_Renderer *renderer, const char *file)
     id_to_texture_dict[STONE_BLOCK_ID] = { 0, 32, 16, 16};  // Stone
     id_to_texture_dict[WOOD_BLOCK_ID]  = {32,  0, 16, 16};
     id_to_texture_dict[WOODEN_POLE_ID] = {16, 32, 16, 16};
+    id_to_texture_dict[TREE_LEAFS_ID]  = {208, 0, 48, 48};
 
     id_to_gui_texture_dict[ITEM_SLOT_ID]          = {64, 112, 32, 32}; // item slot
     id_to_gui_texture_dict[SELECTED_ITEM_SLOT_ID] = {96, 112, 32, 32}; // selected item slot
