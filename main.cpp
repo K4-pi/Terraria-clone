@@ -40,6 +40,8 @@ SDL_Renderer *renderer = NULL;
 bool is_window_fullscreen = false;
 bool show_invetory = false;
 
+SDL_Cursor *cursor;
+
 SDL_FlipMode flip_mode = SDL_FLIP_NONE;
 
 Uint64 last_tick;
@@ -114,6 +116,23 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         SDL_Log("Failed to open font file: %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
+
+    SDL_Surface *cursor_surface = SDL_LoadPNG("resources/cursor.png");
+    if (cursor_surface == NULL)
+    {
+        SDL_Log("Failed to load surface: %s", SDL_GetError());
+        return SDL_APP_FAILURE;
+    }
+
+    cursor = SDL_CreateColorCursor(cursor_surface, 16, 16);
+    if (cursor == NULL)
+    {
+        SDL_Log("Failed to load cursor: %s", SDL_GetError());
+        return SDL_APP_FAILURE;
+    }
+    SDL_SetCursor(cursor);
+
+    SDL_DestroySurface(cursor_surface);
 
     last_tick = SDL_GetTicks();
 
@@ -327,6 +346,8 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
     (void)appstate; // -Wunused-paramters
     (void)result;
+
+    SDL_DestroyCursor(cursor);
 
     DeleteTextures();
 
