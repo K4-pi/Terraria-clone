@@ -157,7 +157,6 @@ namespace GUI
                 m_selected_slot = &m_item_slots[slot_number - 1];
 
                 GameContext::selected_item_slot = m_selected_slot;
-                // GameContext::selected_item = items_on_item_bar[slot_number - 1];
 
                 m_selected_slot->m_id = SELECTED_ITEM_SLOT_ID;
             }
@@ -210,17 +209,16 @@ namespace GUI
         {
             Item::Item *item = &items_in_inventory[i];
 
-                if (item->capacity <= 0)
-                {
-                    items_in_inventory[i] = Item::Item{0, 0, Item::BLOCK};
-
-                    m_inventory_slots[i].m_item_id = 0;
-                }
-                else
-                {
-                    m_inventory_slots[i].m_item_id = items_in_inventory[i].item_id;
-                    m_inventory_slots[i].m_item = &items_in_inventory[i];
-                }
+            if (item->capacity <= 0)
+            {
+                items_in_inventory[i] = Item::Item{0, 0, Item::BLOCK};
+                m_inventory_slots[i].m_item_id = 0;
+            }
+            else
+            {
+                m_inventory_slots[i].m_item_id = items_in_inventory[i].item_id;
+                m_inventory_slots[i].m_item = &items_in_inventory[i];
+            }
         }
     }
 
@@ -292,7 +290,6 @@ namespace GUI
         if (m_selected_item_slot != nullptr)
         {
             m_selected_item_slot->m_id = ITEM_SLOT_ID;
-            m_selected_item_slot->m_item = nullptr;
             m_selected_item_slot = nullptr;
         }
     }

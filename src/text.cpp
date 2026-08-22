@@ -24,9 +24,7 @@ namespace Text
         int text_len = text.size();
 
         SDL_Surface *text_surface = TTF_RenderText_Solid(GameContext::text_font, text.c_str(), text_len, TEXT_COLOR);
-
         SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, text_surface);
-
         SDL_DestroySurface(text_surface);
 
         SDL_FRect rect = {
