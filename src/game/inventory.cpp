@@ -64,8 +64,8 @@ Inventory::Inventory(vector2f_t position)
     {
         x = i % SLOTS_IN_ROW;
 
-        const float X_POSITION = m_position.x + x * GUI::SLOT_SIZE;
-        const float Y_POSITION = m_position.y + y * GUI::SLOT_SIZE;
+        const float X_POSITION = m_position.x + x * HUD::SLOT_SIZE;
+        const float Y_POSITION = m_position.y + y * HUD::SLOT_SIZE;
 
         m_inventory_slots[i].m_position = {
             X_POSITION,
@@ -109,13 +109,14 @@ void Inventory::UpdateInventoryView()
 void Inventory::Display(SDL_Renderer *renderer)
 {
     // Temporary background
-    GuiObject inv_background = GuiObject({m_position.x - 32.0f, m_position.y - 32.0f}, {6 * GUI::SLOT_SIZE, 6 * GUI::SLOT_SIZE}, ITEM_SLOT_ID);
+    GuiObject inv_background = GuiObject({m_position.x - 32.0f, m_position.y - 32.0f}, {6 * HUD::SLOT_SIZE, 6 * HUD::SLOT_SIZE}, ITEM_SLOT_ID);
     inv_background.Draw(renderer);
 
-    for (GUI::ItemSlot &slot : m_inventory_slots)
+    m_hovered_item_slot = nullptr;
+
+    for (HUD::ItemSlot &slot : m_inventory_slots)
     {
         // If current slot is the hovered one, we store it's original id to change it back to it
-        // Terrible GUI draw design... probably will be changed
         if (slot.IsSlotHovered())
         {
             m_hovered_item_slot = &slot;
@@ -134,6 +135,8 @@ void Inventory::Display(SDL_Renderer *renderer)
 
 void Inventory::SelectSlot()
 {
+    if (!m_hovered_item_slot) return;
+
     m_selected_item_slot = m_hovered_item_slot;
     m_selected_item_slot->m_id = SELECTED_ITEM_SLOT_ID;
 }

@@ -17,11 +17,11 @@ void AddItemToInvetory(int item_id);
 class Inventory : public GUI::GuiObject
 {
     private:
-        std::array<GUI::ItemSlot, INVENTORY_CAPACITY> m_inventory_slots;
+        std::array<HUD::ItemSlot, INVENTORY_CAPACITY> m_inventory_slots;
 
     public:
-        GUI::ItemSlot *m_hovered_item_slot;
-        GUI::ItemSlot *m_selected_item_slot;
+        HUD::ItemSlot *m_hovered_item_slot;
+        HUD::ItemSlot *m_selected_item_slot;
 
         Inventory(vector2f_t position);
         void Display(SDL_Renderer *renderer);
