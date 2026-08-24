@@ -1,6 +1,6 @@
-#include "../include/dynamic_entity.h"
-#include "../include/lmath.h"
-#include "../include/block.h"
+#include "game/dynamic_entity.h"
+#include "engine/lmath.h"
+#include "game/block.h"
 
 #include <vector>
 

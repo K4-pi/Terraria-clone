@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../include/dynamic_entity.h"
-#include "../include/lmath.h"
+#include "game/dynamic_entity.h"
+#include "engine/lmath.h"
 
 #include <map>
 

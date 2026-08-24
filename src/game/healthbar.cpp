@@ -1,6 +1,6 @@
-#include "../include/healthbar.h"
-#include "../include/lmath.h"
-#include "../include/id.h"
+#include "game/healthbar.h"
+#include "engine/lmath.h"
+#include "game/id.h"
 
 Healthbar::Healthbar(vector2f_t position, int max_health)
     : m_old_hp { 0 }

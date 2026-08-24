@@ -1,7 +1,7 @@
-#include "../include/animation.h"
-#include "../include/lmath.h"
-#include "../include/textures.h"
-#include "../include/game_context.h"
+#include "engine/animation.h"
+#include "engine/lmath.h"
+#include "engine/textures.h"
+#include "game/game_context.h"
 
 #include <SDL3/SDL_log.h>
 

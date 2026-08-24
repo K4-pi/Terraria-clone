@@ -15,6 +15,8 @@
  */
 
 
+#include "engine/simplex.h"
+
 #include <algorithm>
 #include <array>
 #include <cstdint>

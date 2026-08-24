@@ -1,5 +1,5 @@
-#include "../include/item.h"
-#include "../include/id.h"
+#include "game/item.h"
+#include "game/id.h"
 
 #include <map>
 

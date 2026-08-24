@@ -1,12 +1,13 @@
-#include "../include/world.h"
-#include "../include/player.h"
-#include "../include/game_context.h"
-#include "../include/id.h"
-#include "../include/block.h"
-#include "../include/simplex.h"
-#include "../include/inventory.h"
-#include "../include/blocks_def.h"
-#include "../include/functional_blocks.h"
+#include "engine/simplex.h"
+
+#include "game/world.h"
+#include "game/player.h"
+#include "game/game_context.h"
+#include "game/id.h"
+#include "game/block.h"
+#include "game/inventory.h"
+#include "game/blocks_def.h"
+#include "game/functional_blocks.h"
 
 #include <SDL3/SDL_log.h>
 #include <SDL3/SDL_render.h>

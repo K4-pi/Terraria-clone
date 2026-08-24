@@ -1,7 +1,7 @@
-#include "../include/entity.h"
+#include "engine/entity.h"
 
-#include "../include/textures.h"
-#include "../include/game_context.h"
+#include "engine/textures.h"
+#include "game/game_context.h"
 
 #include <SDL3/SDL_log.h>
 #include <SDL3/SDL_rect.h>

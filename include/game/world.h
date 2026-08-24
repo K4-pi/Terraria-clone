@@ -7,10 +7,10 @@
 #include <vector>
 #include <cstdint>
 
-#include "item.h"
-#include "block.h"
-#include "lmath.h"
-#include "player.h"
+#include "game/item.h"
+#include "game/block.h"
+#include "engine/lmath.h"
+#include "game/player.h"
 
 class Player;
 

@@ -1,8 +1,7 @@
 #pragma once
 
-#include "gui.h"
-#include "item.h"
-#include "lmath.h"
+#include "game/hud.h"
+#include "engine/lmath.h"
 
 #include <SDL3_ttf/SDL_ttf.h>
 

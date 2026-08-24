@@ -1,12 +1,12 @@
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
 
-#include "../include/player.h"
-#include "../include/block.h"
-#include "../include/input.h"
-#include "../include/world.h"
+#include "game/player.h"
+#include "game/block.h"
+#include "engine/input.h"
+#include "game/world.h"
 
-#include "../include/game_context.h"
+#include "game/game_context.h"
 
 #include <vector>
 #include <cmath>

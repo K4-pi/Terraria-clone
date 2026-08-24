@@ -1,7 +1,7 @@
 #pragma once
 
-#include "gui.h"
-#include "lmath.h"
+#include "engine/gui.h"
+#include "engine/lmath.h"
 
 #include <vector>
 

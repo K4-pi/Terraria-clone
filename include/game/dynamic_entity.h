@@ -1,8 +1,8 @@
 #pragma once
 
-#include "entity.h"
-#include "lmath.h"
-#include "block.h"
+#include "engine/entity.h"
+#include "engine/lmath.h"
+#include "game/block.h"
 
 #include <vector>
 

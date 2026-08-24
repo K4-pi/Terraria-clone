@@ -1,6 +1,6 @@
-#include "../include/textures.h"
-#include "../include/lmath.h"
-#include "../include/id.h"
+#include "engine/textures.h"
+#include "engine/lmath.h"
+#include "game/id.h"
 
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_rect.h>

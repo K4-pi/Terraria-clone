@@ -3,12 +3,12 @@
 #include <SDL3/SDL_render.h>
 #include <vector>
 
-#include "block.h"
-#include "animation.h"
-#include "world.h"
-#include "entity.h"
-#include "input_state.h"
-#include "lmath.h"
+#include "game/block.h"
+#include "engine/animation.h"
+#include "game/world.h"
+#include "engine/entity.h"
+#include "engine/input_state.h"
+#include "engine/lmath.h"
 
 class World;
 

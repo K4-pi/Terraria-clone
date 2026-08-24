@@ -1,8 +1,10 @@
 #pragma once
 
+#include "engine/entity.h"
+
 #include <SDL3_ttf/SDL_ttf.h>
 
-#include "entity.h"
+#include <string>
 
 namespace Text
 {

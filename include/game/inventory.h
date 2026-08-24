@@ -1,7 +1,7 @@
 #pragma once
 
-#include "item.h"
-#include "gui.h"
+#include "game/item.h"
+#include "game/hud.h"
 
 #include <array>
 

@@ -1,7 +1,8 @@
-#include "../include/inventory.h"
-#include "../include/id.h"
-#include "../include/item.h"
-#include "../include/gui.h"
+#include "game/inventory.h"
+#include "game/id.h"
+#include "game/item.h"
+#include "engine/gui.h"
+#include "game/hud.h"
 
 #include <array>
 

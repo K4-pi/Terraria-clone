@@ -1,8 +1,9 @@
-#include "../include/blocks_def.h"
-#include "../include/block.h"
-#include "../include/lmath.h"
-#include "../include/textures.h"
-#include "../include/game_context.h"
+#include "engine/lmath.h"
+#include "engine/textures.h"
+#include "game/blocks_def.h"
+#include "game/block.h"
+#include "game/game_context.h"
+#include "game/id.h"
 
 #include <SDL3/SDL_render.h>
 

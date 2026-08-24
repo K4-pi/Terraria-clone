@@ -1,5 +1,5 @@
-#include "../include/text.h"
-#include "../include/game_context.h"
+#include "engine/text.h"
+#include "game/game_context.h"
 
 #include <SDL3/SDL_pixels.h>
 #include <SDL3/SDL_rect.h>

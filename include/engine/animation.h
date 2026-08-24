@@ -1,8 +1,7 @@
 #pragma once
 
-#include "entity.h"
-#include "textures.h"
-#include "lmath.h"
+#include "engine/entity.h"
+#include "engine/lmath.h"
 
 #include <vector>
 

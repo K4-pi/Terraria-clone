@@ -1,4 +1,4 @@
-#include "../include/input.h"
+#include "engine/input.h"
 
 #include <SDL3/SDL_keycode.h>
 

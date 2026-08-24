@@ -1,10 +1,7 @@
 #pragma once
 
-#include <string>
-#include <map>
-
-#include "entity.h"
-#include "lmath.h"
+#include "engine/entity.h"
+#include "engine/lmath.h"
 
 class Block : public Entity
 {
