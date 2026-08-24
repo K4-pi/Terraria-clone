@@ -8,7 +8,7 @@ CPPFLAGS := -Iinclude
 LDFLAGS :=
 LDLIBS := -lSDL3 -lSDL3_image -lSDL3_ttf
 
-SRC := main.cpp $(wildcard src/*.cpp)
+SRC := main.cpp $(wildcard src/engine/*.cpp) $(wildcard src/game/*.cpp)
 OBJ := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(SRC))
 DEP := $(OBJ:.o=.d)
 

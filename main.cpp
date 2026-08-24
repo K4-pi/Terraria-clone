@@ -24,20 +24,21 @@
 #include <ctime>
 #include <memory>
 
-#include "include/functional_blocks.h"
-#include "include/id.h"
-#include "include/block.h"
-#include "include/input_state.h"
-#include "include/textures.h"
-#include "include/lmath.h"
-#include "include/player.h"
-#include "include/world.h"
-#include "include/game_context.h"
-#include "include/input.h"
-#include "include/animation.h"
-#include "include/gui.h"
-#include "include/healthbar.h"
-#include "include/inventory.h"
+#include "engine/input.h"
+#include "engine/animation.h"
+#include "engine/input_state.h"
+#include "engine/textures.h"
+#include "engine/lmath.h"
+
+#include "game/functional_blocks.h"
+#include "game/id.h"
+#include "game/block.h"
+#include "game/player.h"
+#include "game/world.h"
+#include "game/game_context.h"
+#include "game/hud.h"
+#include "game/healthbar.h"
+#include "game/inventory.h"
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
