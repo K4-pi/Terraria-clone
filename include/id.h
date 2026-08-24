@@ -32,3 +32,4 @@ constexpr int WOOD_LOG_ID    = 5;
 constexpr int TREE_LEAFS_ID  = 6;
 constexpr int COAL_ORE_ID    = 7;
 constexpr int COPPER_ORE_ID  = 8;
+constexpr int FURNACE_ID     = 9;

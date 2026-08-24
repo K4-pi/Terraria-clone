@@ -98,3 +98,8 @@ void Block::Draw(SDL_Renderer *renderer)
         }
     }
 }
+
+void Block::Interact()
+{
+    return;
+}

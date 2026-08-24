@@ -17,4 +17,6 @@ class Block : public Entity
         Block();
         Block(vector2f_t position, vector2f_t size, int id, bool collision=true);
         void Draw(SDL_Renderer *renderer);
+
+        virtual void Interact();
 };

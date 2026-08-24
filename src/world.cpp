@@ -6,6 +6,7 @@
 #include "../include/simplex.h"
 #include "../include/inventory.h"
 #include "../include/blocks_def.h"
+#include "../include/functional_blocks.h"
 
 #include <SDL3/SDL_log.h>
 #include <SDL3/SDL_render.h>
@@ -13,15 +14,18 @@
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
+#include <memory>
+#include <utility>
 #include <vector>
 
 void DrawBlocks(SDL_Renderer *renderer, std::vector<Block*> *blocks);
+std::unique_ptr<Block> CreateBlock(vector2f_t position, vector2f_t size, int id, bool collision);
 
-Chunk::Chunk(std::vector<Block> chunk_blocks)
-    : m_blocks { chunk_blocks }
+Chunk::Chunk(std::vector<std::unique_ptr<Block>> chunk_blocks)
+    : m_blocks { std::move(chunk_blocks) }
     , m_center_position {}
 {
-    const Block *first_block = &m_blocks.at(0);
+    const Block *first_block = m_blocks.at(0).get();
 
     m_center_position = {
         .x = int(first_block->m_position.x) + (CHUNK_SIZE.x / 2) * int(GameContext::STANDARD_BLOCK_SIZE),
@@ -39,7 +43,7 @@ World::World()
     , m_hovered_block { nullptr }
 {}
 
-void World::GenerateChunks(std::vector<Block> blocks)
+void World::GenerateChunks(std::vector<std::unique_ptr<Block>> blocks)
 {
     m_chunks.clear();
 
@@ -59,7 +63,7 @@ void World::GenerateChunks(std::vector<Block> blocks)
             const int start_y = cy * CHUNK_SIZE.y;
             const int end_y   = std::min(start_y + CHUNK_SIZE.y, map_height); // Cap edges
 
-            std::vector<Block> chunk_blocks;
+            std::vector<std::unique_ptr<Block>> chunk_blocks;
 
             for (int x = start_x; x < end_x; ++x)
             {
@@ -67,19 +71,22 @@ void World::GenerateChunks(std::vector<Block> blocks)
                 {
                     const int index = x + y * map_width;
 
-                    chunk_blocks.push_back(blocks.at(index));
+                    chunk_blocks.push_back(std::move(blocks.at(index)));
                 }
             }
 
-            Chunk chunk = Chunk(chunk_blocks);
-            m_chunks[{chunk.m_center_position.x, chunk.m_center_position.y}] = chunk; // Save chunk in hash map using position as key
+            Chunk chunk = Chunk(std::move(chunk_blocks));
+            m_chunks.emplace(
+                vector2_t { chunk.m_center_position.x, chunk.m_center_position.y },
+                std::move(chunk)
+            );
         }
     }
 }
 
 void World::GenerateWorld(const std::uint32_t seed)
 {
-    std::vector<Block> blocks;
+    std::vector<std::unique_ptr<Block>> blocks;
 
     const int map_width = GameContext::world_size.x;
     const int map_height = GameContext::world_size.y;
@@ -127,7 +134,7 @@ void World::GenerateWorld(const std::uint32_t seed)
                 {
                     if (row == TREE_INDEX)
                     {
-                        blocks.push_back(Block(
+                        blocks.push_back(CreateBlock(
                             {xPos - 16.0f, yPos - 16.0f},
                             {48.0f, 48.0f},
                             TREE_LEAFS_ID,
@@ -136,7 +143,7 @@ void World::GenerateWorld(const std::uint32_t seed)
                     }
                     else
                     {
-                        blocks.push_back(Block(
+                        blocks.push_back(CreateBlock(
                             {xPos, yPos},
                             {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
                             WOOD_LOG_ID,
@@ -146,7 +153,7 @@ void World::GenerateWorld(const std::uint32_t seed)
                 }
                 else
                 {
-                    blocks.push_back(Block(
+                    blocks.push_back(CreateBlock(
                         {xPos, yPos},
                         {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
                         NULL_BLOCK_ID,
@@ -156,7 +163,7 @@ void World::GenerateWorld(const std::uint32_t seed)
             }
             else if (row > surface && row < stone_surface)
             {
-                blocks.push_back(Block(
+                blocks.push_back(CreateBlock(
                     {xPos, yPos},
                     {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
                     DIRT_BLOCK_ID,
@@ -165,7 +172,7 @@ void World::GenerateWorld(const std::uint32_t seed)
             }
             else if (row == surface)
             {
-                blocks.push_back(Block(
+                blocks.push_back(CreateBlock(
                     {xPos, yPos},
                     {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
                     GRASS_BLOCK_ID,
@@ -180,7 +187,7 @@ void World::GenerateWorld(const std::uint32_t seed)
                 {
                     if (row >= surface + 30.0f)
                     {
-                        blocks.push_back(Block(
+                        blocks.push_back(CreateBlock(
                             {xPos, yPos},
                             {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
                             COPPER_ORE_ID,
@@ -190,7 +197,7 @@ void World::GenerateWorld(const std::uint32_t seed)
                     }
                     else if (row >= surface + 15.0f)
                     {
-                        blocks.push_back(Block(
+                        blocks.push_back(CreateBlock(
                             {xPos, yPos},
                             {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
                             COAL_ORE_ID,
@@ -200,7 +207,7 @@ void World::GenerateWorld(const std::uint32_t seed)
                     }
                 }
 
-                blocks.push_back(Block(
+                blocks.push_back(CreateBlock(
                     {xPos, yPos},
                     {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
                     STONE_BLOCK_ID,
@@ -210,7 +217,7 @@ void World::GenerateWorld(const std::uint32_t seed)
         }
     }
 
-    GenerateChunks(blocks);
+    GenerateChunks(std::move(blocks));
 }
 
 void World::UpdateHoveredBlock(vector2f_t mouse_position)
@@ -222,16 +229,21 @@ void World::UpdateHoveredBlock(vector2f_t mouse_position)
         mouse_position.y / GameContext::camera_zoom
     };
 
-    for (Block *current_block : m_active_blocks)
+    for (Chunk *chunk : m_active_chunks)
     {
-        bool hover_x = std::fmax(std::fmin(real_position.x, current_block->m_position.x + current_block->m_size.x - GameContext::camera.x), current_block->m_position.x - GameContext::camera.x) == real_position.x;
-        bool hover_y = std::fmax(std::fmin(real_position.y, current_block->m_position.y + current_block->m_size.y - GameContext::camera.y), current_block->m_position.y - GameContext::camera.y) == real_position.y;
-
-        current_block->m_hovered = hover_x && hover_y;
-
-        if (current_block->m_hovered)
+        for (std::unique_ptr<Block> &current_block : chunk->m_blocks)
         {
-            m_hovered_block = current_block;
+            Block *raw_block = current_block.get();
+
+            bool hover_x = std::fmax(std::fmin(real_position.x, raw_block->m_position.x + raw_block->m_size.x - GameContext::camera.x), raw_block->m_position.x - GameContext::camera.x) == real_position.x;
+            bool hover_y = std::fmax(std::fmin(real_position.y, raw_block->m_position.y + raw_block->m_size.y - GameContext::camera.y), raw_block->m_position.y - GameContext::camera.y) == real_position.y;
+
+            raw_block->m_hovered = hover_x && hover_y;
+
+            if (raw_block->m_hovered)
+            {
+                m_hovered_block = &current_block;
+            }
         }
     }
 }
@@ -240,22 +252,30 @@ void World::SetHoveredBlock(int id, bool collision)
 {
     if (m_hovered_block == nullptr) return;
 
-    m_hovered_block->m_id = id;
-    m_hovered_block->m_collision = collision;
+    Block *hovered_block = m_hovered_block->get();
+    *m_hovered_block = CreateBlock(
+        hovered_block->m_position,
+        hovered_block->m_size,
+        id,
+        collision
+    );
 }
 
 void World::DamageBlock(int item_hardness, float item_damage)
 {
-    if (m_hovered_block == nullptr || item_hardness < m_hovered_block->m_hardness || m_hovered_block->m_id == NULL_BLOCK_ID) return;
+    if (m_hovered_block == nullptr) return;
 
-    m_hovered_block->m_durability -= item_damage;
+    Block *hovered_block = m_hovered_block->get();
+    if (item_hardness < hovered_block->m_hardness || hovered_block->m_id == NULL_BLOCK_ID) return;
 
-    if (m_hovered_block->m_durability <= 0.0f)
+    hovered_block->m_durability -= item_damage;
+
+    if (hovered_block->m_durability <= 0.0f)
     {
-        AddEntity(m_hovered_block->m_id, m_hovered_block->m_position);
+        AddEntity(hovered_block->m_id, hovered_block->m_position);
 
-        *m_hovered_block = Block(
-            {m_hovered_block->m_position.x, m_hovered_block->m_position.y},
+        *m_hovered_block = CreateBlock(
+            {hovered_block->m_position.x, hovered_block->m_position.y},
             {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
             NULL_BLOCK_ID,
             false
@@ -265,12 +285,15 @@ void World::DamageBlock(int item_hardness, float item_damage)
 
 void World::PlaceBlock(int block_id)
 {
-    if (m_hovered_block == nullptr || m_hovered_block->m_id != NULL_BLOCK_ID) return;
+    if (m_hovered_block == nullptr) return;
+
+    Block *hovered_block = m_hovered_block->get();
+    if (hovered_block->m_id != NULL_BLOCK_ID) return;
 
     bool block_collision = (BLOCKS_STATS[block_id].layer == 1);
 
-    *m_hovered_block = Block(
-        {m_hovered_block->m_position.x, m_hovered_block->m_position.y},
+    *m_hovered_block = CreateBlock(
+        {hovered_block->m_position.x, hovered_block->m_position.y},
         {GameContext::STANDARD_BLOCK_SIZE, GameContext::STANDARD_BLOCK_SIZE},
         block_id,
         block_collision
@@ -312,9 +335,9 @@ std::vector<Block*> World::GetActiveBlocks()
     std::vector<Block*> v;
     for (Chunk *chunk : m_active_chunks)
     {
-        for (Block &b : chunk->m_blocks)
+        for (std::unique_ptr<Block> &b : chunk->m_blocks)
         {
-            v.push_back(&b);
+            v.push_back(b.get());
         }
     }
 
@@ -379,5 +402,16 @@ void World::ManageWorldEntities(SDL_Renderer* renderer, Player *player, float de
 
         entity.UpdatePosition(delta, &m_active_blocks);
         entity.Draw(renderer);
+    }
+}
+
+std::unique_ptr<Block> CreateBlock(vector2f_t position, vector2f_t size, int id, bool collision)
+{
+    switch (id)
+    {
+        case FURNACE_ID:
+            return std::make_unique<FunctionalBlocks::Furnace>(position, size);
+        default:
+            return std::make_unique<Block>(position, size, id, collision);
     }
 }

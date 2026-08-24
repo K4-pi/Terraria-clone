@@ -22,7 +22,11 @@
 #include <cstddef>
 #include <cstdlib>
 #include <ctime>
+#include <memory>
 
+#include "include/functional_blocks.h"
+#include "include/id.h"
+#include "include/block.h"
 #include "include/input_state.h"
 #include "include/textures.h"
 #include "include/lmath.h"
@@ -33,6 +37,7 @@
 #include "include/animation.h"
 #include "include/gui.h"
 #include "include/healthbar.h"
+#include "include/inventory.h"
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
@@ -71,7 +76,7 @@ GUI::ItemBar item_bar = GUI::ItemBar({
     GameContext::camera.y + GameContext::BASE_RESOLUTION.y - 120
 });
 
-GUI::Inventory inventory = GUI::Inventory({
+Inventory inventory = Inventory({
     GameContext::camera.x + GameContext::BASE_RESOLUTION.x * 0.5f - 160,
     GameContext::camera.y + GameContext::BASE_RESOLUTION.y * 0.5f - 160
 });
@@ -193,6 +198,23 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
         else inventory.SelectSlot();
 
         Input::state.mouse_left_clicked = false;
+    }
+
+    if (Input::state.mouse_right_clicked)
+    {
+        std::unique_ptr<Block> *hovered_block = world.m_hovered_block;
+
+        switch (hovered_block->get()->m_id)
+        {
+            case FURNACE_ID:
+                if (auto *furnace = dynamic_cast<FunctionalBlocks::Furnace*>(hovered_block->get()))
+                {
+                    furnace->Interact();
+                }
+                break;
+
+            default: break;
+        }
     }
 
     if (Input::state.f1 && GameContext::camera_zoom < GameContext::MAX_ZOOM)

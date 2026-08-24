@@ -1,17 +1,23 @@
 #pragma once
 
 #include "lmath.h"
-#include "inventory.h"
 #include "text.h"
+#include "item.h"
 
 #include <SDL3/SDL_render.h>
 #include <array>
 #include <string>
 
-static constexpr int SLOTS_NUMBER = 5;
-
 namespace GUI
 {
+    constexpr int SLOTS_NUMBER = 5;
+    constexpr float SLOT_SIZE = 64.0f;
+
+    constexpr float ICON_SIZE = 32.0f;
+    constexpr float ICON_OFFSET = ICON_SIZE * 0.5f;
+
+    constexpr float INVETORY_SLOTS_OFFSET = 4.0f;
+
     class GuiObject
     {
         public:
@@ -49,24 +55,5 @@ namespace GUI
             void Display(SDL_Renderer *renderer);
             void UpdateItemBar();
             void SelectSlot(int slot_number);
-    };
-
-    class Inventory : public GuiObject
-    {
-        private:
-            std::array<GUI::ItemSlot, INVENTORY_CAPACITY> m_inventory_slots;
-
-        public:
-            ItemSlot *m_hovered_item_slot;
-            ItemSlot *m_selected_item_slot;
-
-            Inventory(vector2f_t position);
-            void Display(SDL_Renderer *renderer);
-            void UpdateInventoryView();
-            void SelectSlot();
-            void MoveItemToHoveredSlot();
-            void MapItemToItemBar(int bar_number);
-            bool IsSlotSelected();
-            void ResetSelectedSlot();
     };
 };
