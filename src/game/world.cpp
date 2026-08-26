@@ -1,13 +1,13 @@
 #include "engine/simplex.h"
 
 #include "game/world.h"
+#include "game/item.h"
 #include "game/player.h"
 #include "game/game_context.h"
 #include "game/id.h"
 #include "game/block.h"
 #include "game/inventory.h"
 #include "game/blocks_def.h"
-#include "game/functional_blocks.h"
 
 #include <SDL3/SDL_log.h>
 #include <SDL3/SDL_render.h>
@@ -289,6 +289,7 @@ void World::PlaceBlock(int block_id)
     if (m_hovered_block == nullptr) return;
 
     Block *hovered_block = m_hovered_block->get();
+
     if (hovered_block->m_id != NULL_BLOCK_ID) return;
 
     bool block_collision = (BLOCKS_STATS[block_id].layer == 1);
@@ -397,7 +398,7 @@ void World::ManageWorldEntities(SDL_Renderer* renderer, Player *player, float de
 
             m_world_entities.erase(m_world_entities.begin() + index);
 
-            AddItemToInvetory(entity.m_id);
+            AddItemToInvetory(entity.m_id, BLOCKS_STATS[entity.m_id].type);
             continue;
         }
 
@@ -408,11 +409,5 @@ void World::ManageWorldEntities(SDL_Renderer* renderer, Player *player, float de
 
 std::unique_ptr<Block> CreateBlock(vector2f_t position, vector2f_t size, int id, bool collision)
 {
-    switch (id)
-    {
-        case FURNACE_ID:
-            return std::make_unique<FunctionalBlocks::Furnace>(position, size);
-        default:
-            return std::make_unique<Block>(position, size, id, collision);
-    }
+    return std::make_unique<Block>(position, size, id, collision);
 }

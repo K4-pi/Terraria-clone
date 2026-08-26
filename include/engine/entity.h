@@ -2,12 +2,12 @@
 
 #include "engine/lmath.h"
 
+#include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_surface.h>
 
 class Entity
 {
-
     public:
         vector2f_t m_position;
         vector2f_t m_size;

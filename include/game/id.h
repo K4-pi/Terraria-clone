@@ -6,12 +6,15 @@ constexpr unsigned int NULL_GUI_ID = 0;
 constexpr unsigned int ITEM_SLOT_ID = 1;
 constexpr unsigned int SELECTED_ITEM_SLOT_ID = 2;
 constexpr unsigned int HOVERED_ITEM_SLOT_ID = 3;
+constexpr unsigned int BAR_CONNECTED_SLOT_ID = 4;
 
 // HEARTS
-constexpr unsigned int HEART_LVL_1_ID = 4;
-constexpr unsigned int HEART_LVL_2_ID = 5;
-constexpr unsigned int HEART_LVL_3_ID = 6;
-constexpr unsigned int HEART_LVL_4_ID = 7;
+constexpr unsigned int HEART_LVL_1_ID = 5;
+constexpr unsigned int HEART_LVL_2_ID = 6;
+constexpr unsigned int HEART_LVL_3_ID = 7;
+constexpr unsigned int HEART_LVL_4_ID = 8;
+
+constexpr unsigned int FURNACE_GUI_ID = 9;
 
 //=========================================================
 
@@ -33,3 +36,5 @@ constexpr int TREE_LEAFS_ID  = 6;
 constexpr int COAL_ORE_ID    = 7;
 constexpr int COPPER_ORE_ID  = 8;
 constexpr int FURNACE_ID     = 9;
+
+constexpr int COPPER_BAR_ID = 10;

@@ -12,6 +12,8 @@ namespace Item
     typedef enum {
         BLOCK,
         TOOL,
+        FUEL,
+        ORE,
     } item_type;
 
     typedef struct {

@@ -54,15 +54,20 @@ int LoadTexturesFromFile(SDL_Renderer *renderer, const char *file)
     id_to_texture_dict[COPPER_ORE_ID]  = {32, 16, 16, 16};
     id_to_texture_dict[FURNACE_ID]     = {32, 32, 16, 16};
 
-    id_to_gui_texture_dict[ITEM_SLOT_ID]          = {64, 112, 32, 32}; // item slot
-    id_to_gui_texture_dict[SELECTED_ITEM_SLOT_ID] = {96, 112, 32, 32}; // selected item slot
-    id_to_gui_texture_dict[HOVERED_ITEM_SLOT_ID] = {128, 112, 32, 32}; // hovered item slot
+    id_to_texture_dict[COPPER_BAR_ID] = {144, 16, 16, 16};
+
+    id_to_gui_texture_dict[ITEM_SLOT_ID]          = { 64, 112, 32, 32}; // item slot
+    id_to_gui_texture_dict[SELECTED_ITEM_SLOT_ID] = { 96, 112, 32, 32}; // selected item slot
+    id_to_gui_texture_dict[HOVERED_ITEM_SLOT_ID]  = {128, 112, 32, 32}; // hovered item slot
+    id_to_gui_texture_dict[BAR_CONNECTED_SLOT_ID]  = {160, 112, 32, 32}; // bar connected slot
 
     // Hearts sprite
     id_to_gui_texture_dict[HEART_LVL_1_ID] = {96, 80, 32, 32};
     id_to_gui_texture_dict[HEART_LVL_2_ID] = {64, 80, 32, 32};
     id_to_gui_texture_dict[HEART_LVL_3_ID] = {32, 80, 32, 32};
     id_to_gui_texture_dict[HEART_LVL_4_ID] = { 0, 80, 32, 32};
+
+    id_to_gui_texture_dict[FURNACE_GUI_ID] = {160, 160, 96, 96};
 
     return 0;
 }

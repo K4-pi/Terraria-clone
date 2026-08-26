@@ -17,17 +17,13 @@ void UpdateInventory()
     items_in_inventory[1] = Item::Item{GRASS_BLOCK_ID, 32, Item::BLOCK};
     items_in_inventory[2] = Item::Item{DIRT_BLOCK_ID, 32, Item::BLOCK};
     items_in_inventory[3] = Item::Item{FURNACE_ID, 1, Item::BLOCK};
-
-    items_on_item_bar[0] = &items_in_inventory[0]; // for testing
-    items_on_item_bar[1] = &items_in_inventory[1];
-    items_on_item_bar[2] = &items_in_inventory[2];
-    items_on_item_bar[3] = &items_in_inventory[3];
-    items_on_item_bar[4] = &items_in_inventory[4];
+    items_in_inventory[4] = Item::Item{COPPER_ORE_ID, 32, Item::ORE};
+    items_in_inventory[5] = Item::Item{COAL_ORE_ID, 32, Item::FUEL};
 }
 
 // TODO:
 // What if no space in inventory
-void AddItemToInvetory(int item_id)
+void AddItemToInvetory(int item_id, Item::item_type item_type, unsigned int capacity)
 {
     Item::Item *empty_slot = nullptr;
 
@@ -44,7 +40,7 @@ void AddItemToInvetory(int item_id)
         }
     }
 
-    *empty_slot = Item::Item{item_id, 1, Item::BLOCK};
+    *empty_slot = Item::Item{item_id, capacity, item_type};
 }
 
 Inventory::Inventory(vector2f_t position)
@@ -62,29 +58,39 @@ Inventory::Inventory(vector2f_t position)
 
     for (int i=0; i < INVENTORY_CAPACITY; i++)
     {
+        HUD::ItemSlot *current_slot = &m_inventory_slots[i];
+
         x = i % SLOTS_IN_ROW;
 
         const float X_POSITION = m_position.x + x * HUD::SLOT_SIZE;
         const float Y_POSITION = m_position.y + y * HUD::SLOT_SIZE;
 
-        m_inventory_slots[i].m_position = {
-            X_POSITION,
-            Y_POSITION
-        };
-        m_inventory_slots[i].m_id = ITEM_SLOT_ID;
-
-        m_inventory_slots[i].m_text.m_position = {
+        current_slot->m_position = {
             X_POSITION,
             Y_POSITION
         };
 
-        UpdateInventoryView();
+        current_slot->m_text.m_position = {
+            X_POSITION,
+            Y_POSITION
+        };
 
-        m_inventory_slots[i].m_item_id = items_in_inventory[i].item_id;
-        m_inventory_slots[i].m_item = &items_in_inventory[i];
+        if (i < INVENTORY_CAPACITY - ITEM_BAR_CAPACITY) current_slot->m_id = ITEM_SLOT_ID;
+        else current_slot->m_id = BAR_CONNECTED_SLOT_ID;
+
+        current_slot->m_item_id = items_in_inventory[i].item_id;
+        current_slot->m_item = &items_in_inventory[i];
 
         if (x == SLOTS_IN_ROW - 1) y++;
     }
+
+    UpdateInventoryView();
+
+    items_on_item_bar[4] = &items_in_inventory[INVENTORY_CAPACITY - 1];
+    items_on_item_bar[3] = &items_in_inventory[INVENTORY_CAPACITY - 2];
+    items_on_item_bar[2] = &items_in_inventory[INVENTORY_CAPACITY - 3];
+    items_on_item_bar[1] = &items_in_inventory[INVENTORY_CAPACITY - 4];
+    items_on_item_bar[0] = &items_in_inventory[INVENTORY_CAPACITY - 5];
 }
 
 void Inventory::UpdateInventoryView()
@@ -143,6 +149,8 @@ void Inventory::SelectSlot()
 
 void Inventory::MoveItemToHoveredSlot()
 {
+    if (!m_hovered_item_slot) return;
+
     const int selected_slot_index = m_selected_item_slot - &m_inventory_slots[0];
     const int hovered_slot_index = m_hovered_item_slot - &m_inventory_slots[0];
 

@@ -12,7 +12,7 @@ extern std::array<Item::Item, INVENTORY_CAPACITY> items_in_inventory;
 extern std::array<Item::Item*, ITEM_BAR_CAPACITY> items_on_item_bar;
 
 void UpdateInventory();
-void AddItemToInvetory(int item_id);
+void AddItemToInvetory(int item_id, Item::item_type item_type, unsigned int capacity=1);
 
 class Inventory : public GUI::GuiObject
 {

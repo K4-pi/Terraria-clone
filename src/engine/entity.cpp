@@ -7,7 +7,6 @@
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_surface.h>
-#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdlib>

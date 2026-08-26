@@ -1,10 +1,13 @@
 #include "engine/gui.h"
 #include "engine/textures.h"
+#include "game/game_context.h"
 
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_log.h>
 
+#include <algorithm>
 #include <cstdlib>
+#include <functional>
 
 namespace GUI
 {
@@ -41,5 +44,23 @@ namespace GUI
             SDL_Log("Failed to draw Entity: %s", SDL_GetError());
             exit(EXIT_FAILURE);
         }
+    }
+
+    Button::Button(vector2f_t position, vector2f_t size, int id)
+        : GuiObject(position, size, id)
+        , click_function {}
+    {}
+
+    void Button::OnClick(std::function<void()> fn)
+    {
+       click_function = std::move(fn);
+    }
+
+    void Button::ButtonListener()
+    {
+        bool hover_x = std::min(std::max(GameContext::mouse_position.x, m_position.x), m_position.x + m_size.x) == GameContext::mouse_position.x;
+        bool hover_y = std::min(std::max(GameContext::mouse_position.y, m_position.y), m_position.y + m_size.y) == GameContext::mouse_position.y;
+
+        if ((hover_x && hover_y) && click_function) click_function();
     }
 };

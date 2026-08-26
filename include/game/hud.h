@@ -7,7 +7,7 @@
 
 #include <SDL3/SDL_render.h>
 
-namespace GUI
+namespace HUD
 {
     constexpr int SLOTS_NUMBER = 5;
     constexpr float SLOT_SIZE = 64.0f;
@@ -17,7 +17,7 @@ namespace GUI
 
     constexpr float INVETORY_SLOTS_OFFSET = 4.0f;
 
-    class ItemSlot : public GuiObject
+    class ItemSlot : public GUI::GuiObject
     {
         public:
             int m_item_id;
@@ -30,13 +30,13 @@ namespace GUI
             bool IsSlotHovered();
     };
 
-    class ItemBar : public GuiObject
+    class ItemBar : public GUI::GuiObject
     {
         private:
-            GUI::ItemSlot m_item_slots[SLOTS_NUMBER];
+            HUD::ItemSlot m_item_slots[SLOTS_NUMBER];
 
         public:
-            GUI::ItemSlot *m_selected_slot;
+            HUD::ItemSlot *m_selected_slot;
 
             ItemBar(vector2f_t position);
             void Display(SDL_Renderer *renderer);

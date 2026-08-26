@@ -11,7 +11,7 @@
 #include <cstdlib>
 #include <string>
 
-namespace GUI
+namespace HUD
 {
     ItemSlot::ItemSlot()
         : GuiObject({0.0f, 0.0f}, {SLOT_SIZE, SLOT_SIZE}, ITEM_SLOT_ID)
@@ -68,11 +68,11 @@ namespace GUI
     ItemBar::ItemBar(vector2f_t position)
         : GuiObject(position, {0, 0}, ITEM_SLOT_ID)
         , m_item_slots {
-            GUI::ItemSlot({position.x + 0 * SLOT_SIZE, position.y + 16.0f}),
-            GUI::ItemSlot({position.x + 1 * SLOT_SIZE, position.y + 16.0f}),
-            GUI::ItemSlot({position.x + 2 * SLOT_SIZE, position.y + 16.0f}),
-            GUI::ItemSlot({position.x + 3 * SLOT_SIZE, position.y + 16.0f}),
-            GUI::ItemSlot({position.x + 4 * SLOT_SIZE, position.y + 16.0f})
+            HUD::ItemSlot({position.x + 0 * SLOT_SIZE, position.y + 16.0f}),
+            HUD::ItemSlot({position.x + 1 * SLOT_SIZE, position.y + 16.0f}),
+            HUD::ItemSlot({position.x + 2 * SLOT_SIZE, position.y + 16.0f}),
+            HUD::ItemSlot({position.x + 3 * SLOT_SIZE, position.y + 16.0f}),
+            HUD::ItemSlot({position.x + 4 * SLOT_SIZE, position.y + 16.0f})
         }
         , m_selected_slot { &m_item_slots[0] }
     {

@@ -20,7 +20,7 @@ namespace GameContext
 
     extern TTF_Font *text_font;
 
-    extern GUI::ItemSlot *selected_item_slot;
+    extern HUD::ItemSlot *selected_item_slot;
     // extern Item::Item *selected_item;
 
     void UpdateCameraPosition(vector2f_t position);

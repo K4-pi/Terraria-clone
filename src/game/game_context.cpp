@@ -9,7 +9,7 @@ namespace GameContext
 
     TTF_Font *text_font = NULL;
 
-    GUI::ItemSlot *selected_item_slot = nullptr;
+    HUD::ItemSlot *selected_item_slot = nullptr;
 
     float camera_zoom = MIN_ZOOM;
 

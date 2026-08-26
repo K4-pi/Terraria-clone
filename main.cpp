@@ -1,3 +1,4 @@
+#include "game/functional_blocks.h"
 #define SDL_MAIN_USE_CALLBACKS 1  /* use the callbacks instead of main() */
 
 #include <SDL3/SDL_pixels.h>
@@ -30,7 +31,6 @@
 #include "engine/textures.h"
 #include "engine/lmath.h"
 
-#include "game/functional_blocks.h"
 #include "game/id.h"
 #include "game/block.h"
 #include "game/player.h"
@@ -45,6 +45,9 @@ SDL_Renderer *renderer = NULL;
 
 bool is_window_fullscreen = false;
 bool show_invetory = false;
+bool show_furnace = false;
+
+FunctionalBlocks::Furnace furnace = FunctionalBlocks::Furnace({360.0f * 3.5f, 380.0f}, {256.0f, 256.0f});
 
 SDL_Cursor *cursor;
 
@@ -72,7 +75,7 @@ animation_t anim_player_walk;
 animation_t anim_player_jump;
 
 // Offsets to display in the middle of the screen
-GUI::ItemBar item_bar = GUI::ItemBar({
+HUD::ItemBar item_bar = HUD::ItemBar({
     GameContext::camera.x + GameContext::BASE_RESOLUTION.x * 0.5f - 160,
     GameContext::camera.y + GameContext::BASE_RESOLUTION.y - 120
 });
@@ -187,33 +190,34 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 
     player.HandleInput(Input::state);
 
-    if (Input::state.mouse_left_clicked && show_invetory)
+    if (Input::state.mouse_left_clicked)
     {
-        if (inventory.IsSlotSelected())
+        if (inventory.IsSlotSelected() && show_invetory)
         {
+            if (show_furnace) furnace.ManageSlots(&inventory);
+
             inventory.MoveItemToHoveredSlot();
-            inventory.ResetSelectedSlot();
 
             item_bar.UpdateItemBar();
+            inventory.ResetSelectedSlot();
         }
         else inventory.SelectSlot();
 
-        Input::state.mouse_left_clicked = false;
+        if (show_furnace) furnace.m_smelt_btn.ButtonListener();
+
+        inventory.UpdateInventoryView();
+
+        // Input::state.mouse_left_clicked = false;
     }
 
     if (Input::state.mouse_right_clicked)
     {
-        std::unique_ptr<Block> *hovered_block = world.m_hovered_block;
-
-        switch (hovered_block->get()->m_id)
+        switch (world.m_hovered_block->get()->m_id)
         {
             case FURNACE_ID:
-                if (auto *furnace = dynamic_cast<FunctionalBlocks::Furnace*>(hovered_block->get()))
-                {
-                    furnace->Interact();
-                }
+                show_furnace = true;
+                show_invetory = true;
                 break;
-
             default: break;
         }
     }
@@ -238,6 +242,12 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 
     if (Input::state.inventory)
     {
+        if (show_furnace)
+        {
+            show_furnace = false;
+            furnace.ResetSlots();
+        }
+
         show_invetory = !show_invetory;
         inventory.ResetSelectedSlot();
 
@@ -352,10 +362,12 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
     player.Draw(renderer, flip_mode, current_animation, delta_time);
 
-    item_bar.Display(renderer);
     healthbar.Draw(renderer);
 
     if (show_invetory) inventory.Display(renderer);
+    else item_bar.Display(renderer);
+
+    if (show_furnace) furnace.Display(renderer);
 
     /* put the newly-cleared rendering on the screen. */
     SDL_RenderPresent(renderer);
